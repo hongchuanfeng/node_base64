@@ -1,0 +1,156 @@
+# 传道AI 网站需求说明
+
+## 一、项目概述
+
+使用 Next.js 开发一个名为"传道AI"的在线工具网站。
+
+- **网站域名**：https://www.base64.club/
+- **版本要求**：仅中文版本
+- **适配要求**：PC端和移动端适配，兼容各种主流浏览器
+
+## 二、SEO 相关要求
+
+1. 有利于 Google 搜索引擎收录
+2. SEO 优化支持
+3. Sitemap 网站地图
+4. Robots.txt 协议文件
+5. Google Analytics 数据分析
+6. Google Search Console 搜索控制台
+
+## 三、功能模块
+
+文本 ↔ Base64	双向转换，支持多种字符编码（UTF-8/GBK等）	实时转换、大文本支持、拖拽上传
+文件 ↔ Base64	将图片/PDF等文件转为Base64字符串	支持预览（图片）、显示转换前后大小对比
+图片Base64预览	输入Base64图片字符串，实时渲染图片	支持复制图片、下载图片、显示格式信息
+URL安全Base64	标准Base64与URL-safe Base64互转	说明何时需要使用（如在URL参数中）
+
+介绍base：
+Base64 原理
+Base64 基础
+Base64 编码对照表
+
+衍生功能：
+🔟 Base16
+🔤 Base32
+🔡 Base58
+🔠 Base62
+🔣 Base85
+💯 Base100
+🗃️ SQL Base64
+
+上面的功能的详细介绍
+
+二、进阶功能类（差异化竞争）
+1. 批量处理
+批量文件/文本与Base64互转
+
+支持ZIP打包导出
+
+提供命令行风格的批量操作界面
+
+2. 编程集成
+在线API服务：提供RESTful API，供开发者调用
+
+代码片段生成：根据转换结果自动生成Python/JavaScript/Java/C#等语言的代码
+
+Postman/curl示例：展示如何用API调用
+
+3. 解码分析
+自动识别编码类型：判断输入是否为有效Base64
+
+解码内容分析：识别解码后是文本、图片、PDF还是其他二进制格式
+
+Base64字符串结构分析：显示长度、填充字符、字符集分布
+
+4. 安全相关
+Base64隐藏信息检测：分析是否包含隐藏的数据或恶意内容
+
+加密+Base64组合：提供简单的AES加密后再Base64编码的功能
+
+三、教育内容类（做知识库）
+如果想让网站有长期价值，可以增加学习板块：
+
+内容方向	具体内容
+Base64原理	图解Base64编码原理、为什么用64个字符、填充机制
+常见场景	图片嵌入HTML/CSS、Data URL、JWT的Payload部分、邮件附件编码
+对比分析	Base64 vs Base32 vs Base58（比特币地址）vs Hex
+面试题整理	常见Base64相关面试题与解答
+在线演示	交互式演示编码过程，每一步转换可视化
+四、特色功能类（提升用户体验）
+暗色模式：开发者大多喜欢暗色主题
+
+无需后端：纯前端实现，所有转换在浏览器完成，保护隐私
+
+PWA支持：可安装为桌面应用，离线可用
+
+快捷键支持：Ctrl+Enter转换、Ctrl+Shift+C复制结果
+
+历史记录：保存最近的10次转换记录
+
+书签工具：提供Bookmarklet，一键转换页面选中内容
+
+
+
+### 6、功能详情要求
+
+每个工具都需要包含以下内容：
+- 功能说明
+- 示例说明
+- 使用方法
+- 注意事项
+- 常见问题
+
+## 四、辅助页面
+
+需要包含以下页面：
+- 关于我们
+- 联系我们
+- 隐私政策
+- 服务条款
+- 免责声明
+- 版权声明
+
+## 五、底部信息
+
+### 版权信息
+```
+© 2025 传道AI · 版权所有
+工业和信息化部 粤ICP备18041392号-7
+```
+
+### 友情链接
+
+| 序号 | 网站名称 | 网址 |
+|:---:|---------|-----|
+| 1 | 免费图片处理 | https://mosaic.chdaoai.com/ |
+| 2 | IceBreakGame | https://www.icebreakgame.com/ |
+| 3 | 视频去水印 | https://www.removewatermarker.com/ |
+| 4 | PDF转换工具 | https://pdf.chdaoai.com/ |
+| 5 | 在线生成二维码 | https://qrcode.chdaoai.com/ |
+| 6 | NBA趣事 | https://www.zorezoro.com/ |
+| 7 | 视频转文字 | https://video2txt.zorezoro.com/ |
+| 8 | 图片去水印 | https://www.chdaoai.com/ |
+| 9 | 传道AI工具 | https://www.openai2025.com/ |
+
+
+邮箱：support@base64.club
+地址：深圳市龙华区龙华大道130栋
+
+代码保存到根目录下。
+
+
+所有页面都加上如下代码：
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8NMLH22Y6G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8NMLH22Y6G');
+</script>
+
+
+所有页面都加上如下代码：
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7274710287377352"
+     crossorigin="anonymous"></script>
