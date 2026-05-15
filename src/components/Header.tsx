@@ -12,7 +12,7 @@ const navItems = [
   { href: '/image-base64', label: '图片预览' },
   { href: '/url-base64', label: 'URL安全编码' },
   { href: '/learn', label: '学习Base64' },
-  { href: '/api', label: 'API服务' },
+  { href: '/developers', label: '开发者' },
 ];
 
 const advancedNavItems = [
@@ -28,6 +28,13 @@ const advancedNavItems = [
   { href: '/batch', label: '批量处理' },
   { href: '/jwt', label: 'JWT解析器', isNew: true },
   { href: '/base91', label: 'Base91编码', isNew: true },
+  { href: '/faq', label: '常见问题' },
+  { href: '/use-cases', label: '使用场景' },
+  { href: '/changelog', label: '更新日志' },
+  { href: '/compare', label: '编码对比' },
+  { href: '/extensions', label: '浏览器扩展' },
+  { href: '/cli', label: '命令行工具' },
+  { href: '/testimonials', label: '用户评价' },
 ];
 
 export function Header() {

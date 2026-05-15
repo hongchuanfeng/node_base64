@@ -35,6 +35,9 @@ const friendLinks = [
   { name: '视频转文字', url: 'https://video2txt.zorezoro.com/' },
   { name: '图片去水印', url: 'https://www.chdaoai.com/' },
   { name: '传道AI工具', url: 'https://www.openai2025.com/' },
+  { name: '中国功夫网', url: 'https://gf.zorezoro.com/' },
+  { name: '中国菜系大全', url: 'https://food.zorezoro.com/' },
+  { name: '中国24史', url: 'https://china.zorezoro.com/' },
 ];
 
 export function Footer() {
