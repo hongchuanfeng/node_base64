@@ -2,10 +2,12 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { encodeBase64, decodeBase64 } from '@/lib/base64';
-import { Upload, File, FileText, X, Check, AlertCircle, ArrowDown, ArrowUp, Zap } from 'lucide-react';
+import { Upload, File, X, Check, ArrowDown, ArrowUp, Zap } from 'lucide-react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function LargeFileProcessor() {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [files, setFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<{ [key: string]: number }>({});
@@ -22,7 +24,7 @@ export default function LargeFileProcessor() {
     const selectedFiles = Array.from(e.target.files || []);
     const validFiles = selectedFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        showToast(`文件 ${file.name} 超过 50MB 限制`, 'error');
+        showToast(`${t.largeFile.fileTooLarge}: ${file.name}`, 'error');
         return false;
       }
       return true;
@@ -37,14 +39,14 @@ export default function LargeFileProcessor() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
     const validFiles = droppedFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        showToast(`文件 ${file.name} 超过 50MB 限制`, 'error');
+        showToast(`${t.largeFile.fileTooLarge}: ${file.name}`, 'error');
         return false;
       }
       return true;
@@ -55,7 +57,7 @@ export default function LargeFileProcessor() {
       setProgress(prev => ({ ...prev, [file.name]: 0 }));
       setResults(prev => ({ ...prev, [file.name]: {} }));
     });
-  }, [showToast]);
+  }, [showToast, t]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -98,7 +100,6 @@ export default function LargeFileProcessor() {
           onProgress(currentProgress);
 
           if (offset < file.size) {
-            // Use setTimeout to prevent blocking UI
             setTimeout(readNextChunk, 0);
           } else {
             try {
@@ -156,7 +157,7 @@ export default function LargeFileProcessor() {
 
   const handleProcess = async () => {
     if (files.length === 0) {
-      showToast('请先选择文件', 'error');
+      showToast(t.largeFile.selectFileFirst, 'error');
       return;
     }
 
@@ -175,13 +176,13 @@ export default function LargeFileProcessor() {
           [file.name]: { base64: result }
         }));
         
-        showToast(`文件 ${file.name} 编码完成`, 'success');
+        showToast(`${t.largeFile.fileEncoded}: ${file.name}`, 'success');
       } catch (err) {
         setResults(prev => ({
           ...prev,
-          [file.name]: { error: '处理失败' }
+          [file.name]: { error: t.largeFile.fileProcessingFailed }
         }));
-        showToast(`文件 ${file.name} 处理失败`, 'error');
+        showToast(`${t.largeFile.fileProcessingFailed}: ${file.name}`, 'error');
       }
     }
 
@@ -195,7 +196,7 @@ export default function LargeFileProcessor() {
       .join('\n');
 
     if (!allBase64) {
-      showToast('没有可解码的 Base64 内容', 'error');
+      showToast(t.largeFile.noBase64ToDecode, 'error');
       return;
     }
 
@@ -211,9 +212,9 @@ export default function LargeFileProcessor() {
         ['decoded-result']: { decoded }
       }));
 
-      showToast('解码完成', 'success');
+      showToast(t.largeFile.decodeComplete, 'success');
     } catch (err) {
-      showToast('解码失败', 'error');
+      showToast(t.largeFile.decodeFailed, 'error');
     }
 
     setIsProcessing(false);
@@ -231,15 +232,15 @@ export default function LargeFileProcessor() {
     a.download = fileName.endsWith('_base64.txt') ? fileName : `${fileName}_base64.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('文件已下载', 'success');
+    showToast(t.selfDestruct?.fileDownloaded || 'File downloaded', 'success');
   };
 
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.selfDestruct?.copiedToClipboard || 'Copied to clipboard', 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.selfDestruct?.copyFailed || 'Copy failed', 'error');
     }
   };
 
@@ -257,10 +258,10 @@ export default function LargeFileProcessor() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          大文件处理
+          {t.largeFile.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          支持超过 10MB 的大文件，带进度条显示，采用分块处理避免浏览器卡顿
+          {t.largeFile.subtitle}
         </p>
       </div>
 
@@ -273,19 +274,19 @@ export default function LargeFileProcessor() {
               className={mode === 'encode' ? 'btn btn-primary' : 'btn btn-secondary'}
             >
               <ArrowUp size={16} />
-              编码文件
+              {t.largeFile.encodeFile}
             </button>
             <button
               onClick={() => setMode('decode')}
               className={mode === 'decode' ? 'btn btn-primary' : 'btn btn-secondary'}
             >
               <ArrowDown size={16} />
-              解码 Base64
+              {t.largeFile.decodeBase64}
             </button>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>字符编码：</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t.largeFile.charset}：</span>
             <select
               value={encoding}
               onChange={(e) => setEncoding(e.target.value as 'utf-8' | 'gbk')}
@@ -332,10 +333,10 @@ export default function LargeFileProcessor() {
         />
         <Upload size={48} color="var(--accent-color)" style={{ marginBottom: '1rem' }} />
         <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          拖拽文件到此处 或 点击选择
+          {t.largeFile.dragOrClick}
         </h3>
         <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-          支持多个文件，单个文件最大 50MB
+          {t.largeFile.fileSizeLimit}
         </p>
       </div>
 
@@ -344,7 +345,7 @@ export default function LargeFileProcessor() {
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-              已选择的文件 ({files.length})
+              {t.largeFile.selectedFiles} ({files.length})
             </h3>
             <button 
               className="btn btn-secondary"
@@ -354,7 +355,7 @@ export default function LargeFileProcessor() {
                 setResults({});
               }}
             >
-              清空全部
+              {t.largeFile.clearAll}
             </button>
           </div>
           
@@ -386,7 +387,7 @@ export default function LargeFileProcessor() {
                           onClick={() => handleDownload(file.name)}
                           style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
                         >
-                          下载
+                          {t.selfDestruct?.download || 'Download'}
                         </button>
                       )}
                       <button 
@@ -418,12 +419,12 @@ export default function LargeFileProcessor() {
                     {fileProgress === 100 ? (
                       <span style={{ color: 'var(--success-color)' }}>
                         <Check size={12} style={{ marginRight: '0.25rem' }} />
-                        处理完成
+                        {t.largeFile.complete}
                       </span>
                     ) : fileProgress > 0 ? (
                       `${fileProgress.toFixed(0)}%`
                     ) : (
-                      '等待处理...'
+                      t.largeFile.waiting
                     )}
                   </div>
                 </div>
@@ -438,7 +439,7 @@ export default function LargeFileProcessor() {
         <div className="card" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
           <Zap size={32} color="var(--accent-color)" style={{ marginBottom: '1rem', animation: 'pulse 1s infinite' }} />
           <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-            正在处理 {mode === 'encode' ? '编码' : '解码'}...
+            {t.largeFile.processing} {mode === 'encode' ? t.largeFile.processingEncode : t.largeFile.processingDecode}...
           </h3>
           <div style={{
             height: '12px',
@@ -467,7 +468,7 @@ export default function LargeFileProcessor() {
           disabled={files.length === 0 || isProcessing}
           style={{ padding: '1rem 3rem', fontSize: '1.1rem' }}
         >
-          {isProcessing ? '处理中...' : `开始${mode === 'encode' ? '编码' : '解码'}`}
+          {isProcessing ? t.largeFile.processing : `${t.largeFile.fileProcessing} ${mode === 'encode' ? t.largeFile.processingEncode : t.largeFile.processingDecode}`}
         </button>
       </div>
 
@@ -475,12 +476,12 @@ export default function LargeFileProcessor() {
       {results['decoded-result']?.decoded && (
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>解码结果</h3>
+            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.largeFile.result}</h3>
             <button 
               className="btn btn-secondary"
               onClick={() => handleCopy(results['decoded-result']?.decoded || '')}
             >
-              复制结果
+              {t.largeFile.copyResult}
             </button>
           </div>
           <div style={{
@@ -502,13 +503,11 @@ export default function LargeFileProcessor() {
 
       {/* Tips */}
       <div className="card">
-        <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>使用说明</h3>
+        <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.largeFile.usageInstructions}</h3>
         <ul style={{ color: 'var(--text-secondary)', paddingLeft: '1.5rem', lineHeight: 2 }}>
-          <li>文件通过分块读取处理，避免一次性加载导致浏览器崩溃</li>
-          <li>进度条实时显示处理进度，大文件也能轻松掌控</li>
-          <li>支持 UTF-8 和 GBK 两种字符编码</li>
-          <li>处理完成后可下载 Base64 文本文件</li>
-          <li>单个文件最大支持 50MB</li>
+          {t.largeFile.usageTips.map((tip, i) => (
+            <li key={i}>{tip}</li>
+          ))}
         </ul>
       </div>
 

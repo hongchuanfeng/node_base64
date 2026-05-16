@@ -3,7 +3,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { fileToBase64, base64ToBlob } from '@/lib/base64';
 import { useToast, ToastContainer } from '@/components/Toast';
-import { Upload, FileImage, Copy, Download, Trash2, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
+import { Upload, FileImage, Copy, Download, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface FileInfo {
@@ -21,6 +22,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export default function FileBase64Tool() {
+  const { t } = useLanguage();
   const [file, setFile] = useState<FileInfo | null>(null);
   const [base64Output, setBase64Output] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -43,11 +45,11 @@ export default function FileBase64Tool() {
         preview: isImage ? base64 : undefined
       });
       setBase64Output(base64);
-      showToast(`文件 ${selectedFile.name} 已加载`, 'success');
+      showToast(`${t.tools.fileBase64.fileLoaded} ${selectedFile.name}`, 'success');
     } catch (error) {
-      showToast('文件读取失败', 'error');
+      showToast(t.tools.fileBase64.fileReadFailed, 'error');
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -70,16 +72,16 @@ export default function FileBase64Tool() {
 
   const handleCopy = useCallback(async () => {
     if (!base64Output) {
-      showToast('没有内容可复制', 'error');
+      showToast(t.errors.noOutputToCopy, 'error');
       return;
     }
     try {
       await navigator.clipboard.writeText(base64Output);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
-  }, [base64Output, showToast]);
+  }, [base64Output, showToast, t]);
 
   const handleDownload = useCallback(() => {
     if (!file) return;
@@ -93,8 +95,8 @@ export default function FileBase64Tool() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('文件下载中...', 'success');
-  }, [file, showToast]);
+    showToast(t.common.download, 'success');
+  }, [file, showToast, t]);
 
   const handleReset = useCallback(() => {
     setFile(null);
@@ -105,10 +107,10 @@ export default function FileBase64Tool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          文件Base64转换
+          {t.tools.fileBase64.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          将图片、PDF等文件转换为Base64字符串，支持预览（图片）、显示转换前后大小对比。
+          {t.tools.fileBase64.description}
         </p>
       </div>
 
@@ -119,13 +121,13 @@ export default function FileBase64Tool() {
             className={`btn ${mode === 'encode' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setMode('encode')}
           >
-            文件 → Base64
+            {t.common.fileToBase64}
           </button>
           <button
             className={`btn ${mode === 'decode' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setMode('decode')}
           >
-            Base64 → 文件
+            {t.common.base64ToFile}
           </button>
         </div>
       </div>
@@ -135,7 +137,7 @@ export default function FileBase64Tool() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           {/* File Input Area */}
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>选择文件</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.tools.fileBase64.selectFile}</h3>
             <div
               className={`drop-zone ${isDragging ? 'active' : ''}`}
               onDrop={handleDrop}
@@ -147,9 +149,9 @@ export default function FileBase64Tool() {
                 {isDragging ? <FileImage size={48} /> : <Upload size={48} />}
               </div>
               <p className="drop-zone-text">
-                {isDragging ? '放开以上传文件' : '拖拽文件到此处，或点击选择'}
+                {isDragging ? t.tools.fileBase64.dragDropActive : t.tools.fileBase64.dragDrop}
               </p>
-              <p className="drop-zone-hint">支持图片、PDF等多种文件格式</p>
+              <p className="drop-zone-hint">{t.tools.fileBase64.description}</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -161,7 +163,7 @@ export default function FileBase64Tool() {
 
           {/* File Info */}
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>文件信息</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.tools.fileBase64.fileName}</h3>
             {file ? (
               <div>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
@@ -185,31 +187,31 @@ export default function FileBase64Tool() {
                   <div style={{ flex: 1 }}>
                     <p style={{ fontWeight: 500, marginBottom: '0.5rem' }}>{file.name}</p>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                      类型: {file.type || '未知'}
+                      {t.tools.fileBase64.fileType}: {file.type || t.tools.fileBase64.unknown}
                     </p>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                      大小: {formatFileSize(file.size)}
+                      {t.tools.fileBase64.fileSize}: {formatFileSize(file.size)}
                     </p>
                   </div>
                 </div>
                 <button className="btn btn-secondary" onClick={handleReset}>
                   <Trash2 size={16} />
-                  移除文件
+                  {t.tools.fileBase64.removeFile}
                 </button>
               </div>
             ) : (
-              <p style={{ color: 'var(--text-tertiary)' }}>请选择或拖拽文件到左侧区域</p>
+              <p style={{ color: 'var(--text-tertiary)' }}>{t.tools.fileBase64.selectFileHint}</p>
             )}
           </div>
         </div>
       ) : (
         /* Decode Mode */
         <div className="card">
-          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>粘贴Base64字符串</h3>
+          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.tools.fileBase64.pasteBase64}</h3>
           <textarea
             value={base64Output}
             onChange={(e) => setBase64Output(e.target.value)}
-            placeholder="在此粘贴Base64字符串..."
+            placeholder={t.tools.textBase64.placeholder.decode}
             className="input-field"
             style={{ minHeight: '200px', fontFamily: 'monospace' }}
           />
@@ -219,16 +221,16 @@ export default function FileBase64Tool() {
       {/* Output Area */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontWeight: 600 }}>转换结果</h3>
+          <h3 style={{ fontWeight: 600 }}>{t.tools.fileBase64.conversionResult}</h3>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button className="btn btn-secondary" onClick={handleCopy}>
               <Copy size={16} />
-              复制
+              {t.common.copy}
             </button>
             {mode === 'decode' && file && (
               <button className="btn btn-primary" onClick={handleDownload}>
                 <Download size={16} />
-                下载文件
+                {t.tools.fileBase64.downloadFile}
               </button>
             )}
           </div>
@@ -245,11 +247,11 @@ export default function FileBase64Tool() {
               marginBottom: '1rem'
             }}>
               <span style={{ color: 'var(--text-secondary)' }}>
-                Base64长度: {base64Output.replace(/^data:[^;]+;base64,/, '').length} 字符
+                {t.tools.fileBase64.base64Length}: {base64Output.replace(/^data:[^;]+;base64,/, '').length}
               </span>
               {mode === 'encode' && file && (
                 <span style={{ color: 'var(--text-secondary)' }}>
-                  压缩比: {Math.round((1 - base64Output.replace(/^data:[^;]+;base64,/, '').length / file.size) * 100)}%
+                  {t.tools.fileBase64.compressionRatio}: {Math.round((1 - base64Output.replace(/^data:[^;]+;base64,/, '').length / file.size) * 100)}%
                 </span>
               )}
             </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Terminal, Download, Package, Copy, Check, ArrowRight, Code, Zap, Globe } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const platforms = [
   {
@@ -11,9 +12,9 @@ const platforms = [
     icon: '🪟',
     color: '#0078d4',
     architectures: [
-      { arch: 'x64', label: '64位', downloadUrl: '#', size: '12MB' },
-      { arch: 'x86', label: '32位', downloadUrl: '#', size: '11MB' },
-      { arch: 'arm64', label: 'ARM64', downloadUrl: '#', size: '13MB' },
+      { arch: 'x64', label: '64位', labelEn: '64-bit', downloadUrl: '#', size: '12MB' },
+      { arch: 'x86', label: '32位', labelEn: '32-bit', downloadUrl: '#', size: '11MB' },
+      { arch: 'arm64', label: 'ARM64', labelEn: 'ARM64', downloadUrl: '#', size: '13MB' },
     ],
     installCommand: 'b64tool --install',
     portableCommand: 'b64tool.exe encode "Hello World"',
@@ -24,8 +25,8 @@ const platforms = [
     icon: '🍎',
     color: '#000000',
     architectures: [
-      { arch: 'x64', label: 'Intel', downloadUrl: '#', size: '10MB' },
-      { arch: 'arm64', label: 'Apple Silicon', downloadUrl: '#', size: '9MB' },
+      { arch: 'x64', label: 'Intel', labelEn: 'Intel', downloadUrl: '#', size: '10MB' },
+      { arch: 'arm64', label: 'Apple Silicon', labelEn: 'Apple Silicon', downloadUrl: '#', size: '9MB' },
     ],
     installCommand: 'brew install base64club/tap/b64tool',
     portableCommand: './b64tool encode "Hello World"',
@@ -36,9 +37,9 @@ const platforms = [
     icon: '🐧',
     color: '#e95420',
     architectures: [
-      { arch: 'x64', label: 'AMD64', downloadUrl: '#', size: '8MB' },
-      { arch: 'arm64', label: 'ARM64', downloadUrl: '#', size: '8MB' },
-      { arch: 'armv7', label: 'ARMv7', downloadUrl: '#', size: '7MB' },
+      { arch: 'x64', label: 'AMD64', labelEn: 'AMD64', downloadUrl: '#', size: '8MB' },
+      { arch: 'arm64', label: 'ARM64', labelEn: 'ARM64', downloadUrl: '#', size: '8MB' },
+      { arch: 'armv7', label: 'ARMv7', labelEn: 'ARMv7', downloadUrl: '#', size: '7MB' },
     ],
     installCommand: 'curl -fsSL https://b64.club/install.sh | sh',
     portableCommand: './b64tool encode "Hello World"',
@@ -46,14 +47,14 @@ const platforms = [
 ];
 
 const features = [
-  { cmd: 'b64 encode "text"', desc: 'Base64编码' },
-  { cmd: 'b64 decode "SGVsbG8="', desc: 'Base64解码' },
-  { cmd: 'b64 encode -f file.png', desc: '文件编码' },
-  { cmd: 'b64 decode -o output.png', desc: '文件解码' },
-  { cmd: 'b64 encode --url "text"', desc: 'URL-safe编码' },
-  { cmd: 'b64 batch -d *.txt', desc: '批量处理' },
-  { cmd: 'b64 analyze "base64..."', desc: '智能分析' },
-  { cmd: 'b64 diff file1.b64 file2.b64', desc: '差异对比' },
+  { cmd: 'b64 encode "text"', descKey: 'base64Encode' as const },
+  { cmd: 'b64 decode "SGVsbG8="', descKey: 'base64Decode' as const },
+  { cmd: 'b64 encode -f file.png', descKey: 'fileEncode' as const },
+  { cmd: 'b64 decode -o output.png', descKey: 'fileDecode' as const },
+  { cmd: 'b64 encode --url "text"', descKey: 'urlSafeEncode' as const },
+  { cmd: 'b64 batch -d *.txt', descKey: 'batchProcessing' as const },
+  { cmd: 'b64 analyze "base64..."', descKey: 'smartAnalyze' as const },
+  { cmd: 'b64 diff file1.b64 file2.b64', descKey: 'diffCompare' as const },
 ];
 
 const shellCompletions = [
@@ -63,7 +64,15 @@ const shellCompletions = [
   { shell: 'Fish', install: 'b64tool --completion fish > ~/.config/fish/completions/b64tool.fish' },
 ];
 
+const featureCards = [
+  { icon: <Zap size={20} />, titleKey: 'fastProcessing' as const, descKey: 'fastProcessingDesc' as const },
+  { icon: <Download size={20} />, titleKey: 'singleFile' as const, descKey: 'singleFileDesc' as const },
+  { icon: <Globe size={20} />, titleKey: 'crossPlatform' as const, descKey: 'crossPlatformDesc' as const },
+  { icon: <Code size={20} />, titleKey: 'codeCompletion' as const, descKey: 'codeCompletionDesc' as const },
+];
+
 export default function CLIPage() {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = async (text: string, id: string) => {
@@ -76,10 +85,10 @@ export default function CLIPage() {
     <div className="tool-container">
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          命令行工具
+          {t.cli.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-          离线使用Base64工具，无需打开浏览器。支持Windows、macOS、Linux。
+          {t.cli.subtitle}
         </p>
       </div>
 
@@ -99,18 +108,18 @@ export default function CLIPage() {
           lineHeight: 1.8,
           margin: 0
         }}>
-          <span style={{ color: '#6a9955' }}># Base64编码</span>
+          <span style={{ color: '#6a9955' }}># {t.cli.encodeComment}</span>
 {`$ b64 encode "Hello World"
 SGVsbG8gV29ybGQh`}
           
-          <span style={{ color: '#6a9955' }}># Base64解码</span>
+          <span style={{ color: '#6a9955' }}># {t.cli.decodeComment}</span>
 {`$ b64 decode "SGVsbG8gV29ybGQh"
 Hello World`}
           
-          <span style={{ color: '#6a9955' }}># 文件编码</span>
+          <span style={{ color: '#6a9955' }}># {t.cli.fileEncodeComment}</span>
 {`$ b64 encode -f logo.png -o logo.b64`}
           
-          <span style={{ color: '#6a9955' }}># URL-safe编码</span>
+          <span style={{ color: '#6a9955' }}># {t.cli.urlSafeEncodeComment}</span>
 {`$ b64 encode --url "https://example.com?q=1+2"
 aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
         </pre>
@@ -123,12 +132,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
         gap: '1rem', 
         marginBottom: '3rem' 
       }}>
-        {[
-          { icon: <Zap size={20} />, title: '极速处理', desc: '纯Go编写，性能出色' },
-          { icon: <Download size={20} />, title: '单文件分发', desc: '无需安装，下载即用' },
-          { icon: <Globe size={20} />, title: '跨平台支持', desc: 'Win/Mac/Linux全覆盖' },
-          { icon: <Code size={20} />, title: '代码补全', desc: '支持主流Shell自动补全' },
-        ].map((feature, index) => (
+        {featureCards.map((feature, index) => (
           <div key={index} style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -139,8 +143,8 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
           }}>
             <div style={{ color: 'var(--accent-color)' }}>{feature.icon}</div>
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{feature.title}</div>
-              <div style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{feature.desc}</div>
+              <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{t.cli[feature.titleKey]}</div>
+              <div style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{t.cli[feature.descKey]}</div>
             </div>
           </div>
         ))}
@@ -148,7 +152,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
 
       {/* Download Section */}
       <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
-        下载安装
+        {t.cli.downloadInstall}
       </h2>
       <div style={{ display: 'grid', gap: '1.5rem', marginBottom: '3rem' }}>
         {platforms.map((platform) => (
@@ -165,7 +169,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
             </div>
             <div style={{ padding: '1.5rem' }}>
               <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>选择版本：</h4>
+                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>{t.cli.selectVersion}:</h4>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   {platform.architectures.map((arch, i) => (
                     <a 
@@ -193,7 +197,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>安装命令：</h4>
+                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>{t.cli.installCommand}:</h4>
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center',
@@ -232,7 +236,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
               </div>
 
               <div>
-                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>使用示例：</h4>
+                <h4 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>{t.cli.usageExample}:</h4>
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center',
@@ -278,7 +282,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
       <div className="card">
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Terminal size={24} style={{ color: 'var(--accent-color)' }} />
-          命令参考
+          {t.cli.commandReference}
         </h2>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           {features.map((feature, index) => (
@@ -302,7 +306,7 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
                 {feature.cmd}
               </code>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                {feature.desc}
+                {t.cli[feature.descKey]}
               </span>
             </div>
           ))}
@@ -313,10 +317,10 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
       <div className="card">
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Package size={24} style={{ color: 'var(--accent-color)' }} />
-          Shell自动补全
+          {t.cli.shellCompletion}
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          安装Shell补全脚本，获得命令自动补全功能。
+          {t.cli.shellCompletionDesc}
         </p>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           {shellCompletions.map((item, index) => (
@@ -374,10 +378,10 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
       {/* Docker */}
       <div className="card" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-          Docker支持
+          {t.cli.dockerSupport}
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          也可以通过Docker使用，无需安装：
+          {t.cli.dockerSupportDesc}
         </p>
         <div style={{ 
           display: 'flex', 
@@ -421,10 +425,10 @@ aHR0cHM6Ly9leGFtcGxlLmNvbT9xPTErMg==`}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <a href="#" className="btn btn-primary" style={{ textDecoration: 'none' }}>
             <Download size={18} />
-            下载CLI工具
+            {t.cli.downloadCLI}
           </a>
           <Link href="/developers" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            查看开发者文档
+            {t.cli.viewDocs}
             <ArrowRight size={18} />
           </Link>
         </div>

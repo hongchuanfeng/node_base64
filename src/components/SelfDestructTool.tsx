@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { encodeBase64, decodeBase64 } from '@/lib/base64';
-import { Trash2, Eye, EyeOff, Clock, Shield, AlertTriangle, Copy, Download, Lock } from 'lucide-react';
+import { Trash2, EyeOff, Clock, Shield, AlertTriangle, Copy, Download, Lock } from 'lucide-react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const TIMEOUT_OPTIONS = [
   { label: '10秒', value: 10 },
@@ -14,7 +15,17 @@ const TIMEOUT_OPTIONS = [
   { label: '30分钟', value: 1800 },
 ];
 
+const TIMEOUT_OPTIONS_EN = [
+  { label: '10 seconds', value: 10 },
+  { label: '30 seconds', value: 30 },
+  { label: '1 minute', value: 60 },
+  { label: '5 minutes', value: 300 },
+  { label: '10 minutes', value: 600 },
+  { label: '30 minutes', value: 1800 },
+];
+
 export default function SelfDestructTool() {
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -27,6 +38,8 @@ export default function SelfDestructTool() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const timeoutOptions = language === 'zh' ? TIMEOUT_OPTIONS : TIMEOUT_OPTIONS_EN;
+
   const clearAll = useCallback(() => {
     setInput('');
     setOutput('');
@@ -37,8 +50,8 @@ export default function SelfDestructTool() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    showToast('所有数据已自动清除', 'success');
-  }, [showToast]);
+    showToast(t.selfDestruct.allDataCleared, 'success');
+  }, [showToast, t]);
 
   const startTimer = useCallback(() => {
     if (!selfDestruct || timeLeft !== null) return;
@@ -110,7 +123,7 @@ export default function SelfDestructTool() {
 
   const handleProcess = () => {
     if (!input.trim()) {
-      showToast('请输入内容', 'error');
+      showToast(t.selfDestruct.enterContent, 'error');
       return;
     }
 
@@ -124,7 +137,7 @@ export default function SelfDestructTool() {
       setOutput(result);
       startTimer();
     } catch (e) {
-      showToast(mode === 'encode' ? '编码失败' : '解码失败：无效的 Base64', 'error');
+      showToast(mode === 'encode' ? t.selfDestruct.encodingFailed : t.selfDestruct.decodingFailed, 'error');
     }
   };
 
@@ -133,12 +146,12 @@ export default function SelfDestructTool() {
     try {
       await navigator.clipboard.writeText(output);
       setCopyCount(prev => prev + 1);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.selfDestruct.copiedToClipboard, 'success');
       if (selfDestruct) {
         setTimeLeft(prev => Math.max(1, (prev || timeout) - 5));
       }
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.selfDestruct.copyFailed, 'error');
     }
   };
 
@@ -151,7 +164,7 @@ export default function SelfDestructTool() {
     a.download = `base64-result-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('文件已下载', 'success');
+    showToast(t.selfDestruct.fileDownloaded, 'success');
     if (selfDestruct) {
       setTimeLeft(prev => Math.max(1, (prev || timeout) - 10));
     }
@@ -168,10 +181,10 @@ export default function SelfDestructTool() {
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Shield size={28} color="var(--accent-color)" />
-          自毁模式
+          {t.selfDestruct.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          处理完成后自动清除数据，防止敏感信息泄露。离开页面、复制或下载都会缩短倒计时
+          {t.selfDestruct.subtitle}
         </p>
       </div>
 
@@ -183,13 +196,12 @@ export default function SelfDestructTool() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
           <AlertTriangle size={24} color="#ef4444" />
-          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>安全提醒</h3>
+          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.selfDestruct.securityNotice}</h3>
         </div>
         <ul style={{ color: 'var(--text-secondary)', paddingLeft: '1.5rem', lineHeight: 2, fontSize: '0.9rem' }}>
-          <li>所有处理在浏览器本地完成，数据不会上传到服务器</li>
-          <li>启用自毁后，页面刷新、关闭或超时都会自动清除数据</li>
-          <li>复制或下载操作会额外缩短倒计时</li>
-          <li>如有需要，可在倒计时结束前手动清除数据</li>
+          {t.selfDestruct.securityTips.map((tip, i) => (
+            <li key={i}>{tip}</li>
+          ))}
         </ul>
       </div>
 
@@ -210,7 +222,7 @@ export default function SelfDestructTool() {
               <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: timeLeft < 30 ? '#ef4444' : '#22c55e' }}>
                 {formatTime(timeLeft)}
               </div>
-              <div style={{ color: 'var(--text-secondary)' }}>后自动清除所有数据</div>
+              <div style={{ color: 'var(--text-secondary)' }}>{t.selfDestruct.autoClearAll}</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button 
@@ -219,20 +231,22 @@ export default function SelfDestructTool() {
                 disabled={copyCount > 0}
               >
                 <EyeOff size={14} />
-                暂停
+                {t.selfDestruct.pause}
               </button>
               <button 
                 className="btn btn-primary" 
                 onClick={clearAll}
               >
                 <Trash2 size={14} />
-                立即清除
+                {t.selfDestruct.clearNow}
               </button>
             </div>
           </div>
           {copyCount > 0 && (
             <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-              已复制 {copyCount} 次，每次复制缩短 5 秒
+              {language === 'zh' 
+                ? `已复制 ${copyCount} 次，每次复制缩短 5 秒`
+                : `Copied ${copyCount} times, each copy shortens by 5 seconds`}
             </p>
           )}
         </div>
@@ -250,20 +264,20 @@ export default function SelfDestructTool() {
                 style={{ width: '18px', height: '18px' }}
               />
               <Shield size={18} color={selfDestruct ? '#22c55e' : 'var(--text-tertiary)'} />
-              <span style={{ fontWeight: 500 }}>启用自毁模式</span>
+              <span style={{ fontWeight: 500 }}>{t.selfDestruct.enableSelfDestruct}</span>
             </label>
           </div>
           
           {selfDestruct && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>自动清除时间：</span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t.selfDestruct.autoClearTime}：</span>
               <select
                 value={timeout}
                 onChange={(e) => setTimeout(Number(e.target.value))}
                 className="input-field"
                 style={{ width: 'auto', padding: '0.5rem 1rem' }}
               >
-                {TIMEOUT_OPTIONS.map(opt => (
+                {timeoutOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
@@ -280,14 +294,14 @@ export default function SelfDestructTool() {
             className={mode === 'encode' ? 'btn btn-primary' : 'btn btn-secondary'}
             style={{ flex: 1 }}
           >
-            编码 (Encode)
+            {t.selfDestruct.encode}
           </button>
           <button
             onClick={() => { setMode('decode'); setOutput(''); }}
             className={mode === 'decode' ? 'btn btn-primary' : 'btn btn-secondary'}
             style={{ flex: 1 }}
           >
-            解码 (Decode)
+            {t.selfDestruct.decode}
           </button>
         </div>
       </div>
@@ -297,7 +311,7 @@ export default function SelfDestructTool() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-              输入 {mode === 'encode' ? '原文' : 'Base64'}
+              {t.selfDestruct.inputPlaceholder} {mode === 'encode' ? t.codeSnippet?.inputPlaintext || 'Input' : 'Base64'}
             </h3>
             {input && (
               <button 
@@ -306,7 +320,7 @@ export default function SelfDestructTool() {
                 style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
               >
                 <Trash2 size={12} />
-                清空
+                {t.selfDestruct.clear}
               </button>
             )}
           </div>
@@ -314,7 +328,7 @@ export default function SelfDestructTool() {
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'encode' ? '输入要加密的敏感内容...' : '输入 Base64 字符串...'}
+            placeholder={t.selfDestruct.inputPlaceholder}
             className="input-field"
             style={{ minHeight: '200px' }}
           />
@@ -323,7 +337,7 @@ export default function SelfDestructTool() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-              输出 {mode === 'encode' ? 'Base64' : '原文'}
+              {t.selfDestruct.output} {mode === 'encode' ? 'Base64' : t.codeSnippet?.inputPlaintext || 'Input'}
             </h3>
             {output && (
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -333,7 +347,7 @@ export default function SelfDestructTool() {
                   style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
                 >
                   <Copy size={12} />
-                  复制
+                  {t.selfDestruct.copy}
                 </button>
                 <button 
                   className="btn btn-secondary" 
@@ -341,7 +355,7 @@ export default function SelfDestructTool() {
                   style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
                 >
                   <Download size={12} />
-                  下载
+                  {t.selfDestruct.download}
                 </button>
               </div>
             )}
@@ -355,7 +369,7 @@ export default function SelfDestructTool() {
             wordBreak: 'break-all',
             color: output ? 'var(--accent-color)' : 'var(--text-tertiary)'
           }}>
-            {output || '处理结果将在此显示...'}
+            {output || t.selfDestruct.resultHint}
           </div>
         </div>
       </div>
@@ -369,50 +383,50 @@ export default function SelfDestructTool() {
           disabled={!input.trim()}
         >
           <Lock size={18} />
-          {mode === 'encode' ? '编码并加密' : '解码并加密'}
+          {mode === 'encode' ? t.selfDestruct.processButton : t.selfDestruct.processButtonDecode}
         </button>
       </div>
 
       {/* Security Features */}
       <div className="card">
         <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          自毁模式特性
+          {t.selfDestruct.features}
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Lock size={18} color="#22c55e" />
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>本地处理</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.selfDestruct.localProcessing}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              数据全程在浏览器本地处理，不经过任何服务器
+              {t.selfDestruct.localProcessingDesc}
             </p>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Clock size={18} color="#3b82f6" />
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>智能倒计时</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.selfDestruct.smartTimer}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              复制、下载或页面失焦会重置或缩短倒计时
+              {t.selfDestruct.smartTimerDesc}
             </p>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Trash2 size={18} color="#ef4444" />
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>彻底清除</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.selfDestruct.thoroughClear}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              倒计时结束自动清除内存和显示内容
+              {t.selfDestruct.thoroughClearDesc}
             </p>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <AlertTriangle size={18} color="#f59e0b" />
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>防意外关闭</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.selfDestruct.preventAccident}</span>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              关闭页面时会弹出确认提示，防止误操作
+              {t.selfDestruct.preventAccidentDesc}
             </p>
           </div>
         </div>

@@ -1,11 +1,20 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Chrome, Globe, Download, Star, ArrowRight, Shield, Zap, Monitor } from 'lucide-react';
+import { getTranslation } from '@/i18n';
 
-export const metadata: Metadata = {
-  title: '浏览器扩展 - 传道AI',
-  description: '下载传道AI浏览器扩展，支持Chrome、Firefox、Edge等主流浏览器。右键菜单快速Base64转换。',
-};
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'zh' }];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+  return {
+    title: `${t.extensions.title} - ChuanDaoAI`,
+    description: t.extensions.subtitle,
+  };
+}
 
 const browsers = [
   {
@@ -14,8 +23,10 @@ const browsers = [
     icon: <Chrome size={32} />,
     color: '#4285f4',
     users: '1.2亿+',
+    usersEn: '120M+',
     status: 'recommended',
     features: ['右键菜单转换', '快捷键支持', '弹出窗口', '离线使用'],
+    featuresEn: ['Right-click menu conversion', 'Keyboard shortcuts', 'Popup window', 'Offline support'],
     downloadUrl: '#',
     version: '2.8.0',
   },
@@ -25,8 +36,10 @@ const browsers = [
     icon: <Monitor size={32} />,
     color: '#0078d4',
     users: '6000万+',
+    usersEn: '60M+',
     status: 'available',
     features: ['右键菜单转换', '快捷键支持', '弹出窗口', '同步收藏夹'],
+    featuresEn: ['Right-click menu conversion', 'Keyboard shortcuts', 'Popup window', 'Sync favorites'],
     downloadUrl: '#',
     version: '2.8.0',
   },
@@ -36,8 +49,10 @@ const browsers = [
     icon: <Globe size={32} />,
     color: '#ff7139',
     users: '3000万+',
+    usersEn: '30M+',
     status: 'available',
     features: ['右键菜单转换', '快捷键支持', '弹出窗口', '隐私保护'],
+    featuresEn: ['Right-click menu conversion', 'Keyboard shortcuts', 'Popup window', 'Privacy protection'],
     downloadUrl: '#',
     version: '2.7.5',
   },
@@ -47,8 +62,10 @@ const browsers = [
     icon: <Globe size={32} />,
     color: '#ff1b6d',
     users: '1000万+',
+    usersEn: '10M+',
     status: 'available',
     features: ['右键菜单转换', '快捷键支持', '弹出窗口'],
+    featuresEn: ['Right-click menu conversion', 'Keyboard shortcuts', 'Popup window'],
     downloadUrl: '#',
     version: '2.7.0',
   },
@@ -57,41 +74,59 @@ const browsers = [
 const features = [
   {
     icon: <Shield size={24} />,
-    title: '隐私优先',
-    desc: '所有转换在本地完成，不上传任何数据，保护您的隐私安全',
+    titleKey: 'privacyFirst' as const,
+    descKey: 'privacyFirstDesc' as const,
   },
   {
     icon: <Zap size={24} />,
-    title: '一键转换',
-    desc: '选中文字右键即可转换，支持编码解码双向操作',
+    titleKey: 'oneClickConvert' as const,
+    descKey: 'oneClickConvertDesc' as const,
   },
   {
     icon: <Download size={24} />,
-    title: '离线可用',
-    desc: '安装后完全离线工作，无需网络连接',
+    titleKey: 'offlineAvailable' as const,
+    descKey: 'offlineAvailableDesc' as const,
   },
   {
     icon: <Star size={24} />,
-    title: '评分4.8',
-    desc: '超过10万用户好评，持续更新维护',
+    titleKey: 'rating' as const,
+    descKey: 'ratingDesc' as const,
   },
 ];
 
 const screenshots = [
-  { title: '右键菜单', desc: '选中文字后右键即可看到转换选项' },
-  { title: '弹出窗口', desc: '点击扩展图标打开功能面板' },
-  { title: '快捷键', desc: '支持Ctrl+Shift+E编码，Ctrl+Shift+D解码' },
+  { titleKey: 'contextMenu' as const, descKey: 'contextMenuDesc' as const },
+  { titleKey: 'popup' as const, descKey: 'popupDesc' as const },
+  { titleKey: 'shortcuts' as const, descKey: 'shortcutsDesc' as const },
 ];
 
-export default function ExtensionsPage() {
+const installSteps = [
+  { stepKey: 'downloadExtension2' as const, descKey: 'extension2Desc' as const },
+  { stepKey: 'openExtensionsPage' as const, descKey: 'openExtensionsPageDesc' as const },
+  { stepKey: 'enableDevMode' as const, descKey: 'enableDevModeDesc' as const },
+  { stepKey: 'dragToInstall' as const, descKey: 'dragToInstallDesc' as const },
+];
+
+const shortcuts = [
+  { keys: 'Ctrl + Shift + E', descKey: 'encodeSelected' as const },
+  { keys: 'Ctrl + Shift + D', descKey: 'decodeSelected' as const },
+  { keys: 'Ctrl + Shift + U', descKey: 'urlSafeEncode' as const },
+  { keys: 'Ctrl + Shift + X', descKey: 'openPanel' as const },
+];
+
+export default async function ExtensionsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+  const isZh = locale === 'zh';
+
   return (
     <div className="tool-container">
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          浏览器扩展
+          {t.extensions.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-          在浏览器中直接使用Base64工具，无需打开网页，选中文字右键即可转换。
+          {t.extensions.subtitle}
         </p>
       </div>
 
@@ -119,10 +154,10 @@ export default function ExtensionsPage() {
             </div>
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                {feature.title}
+                {t.extensions[feature.titleKey]}
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                {feature.desc}
+                {t.extensions[feature.descKey]}
               </p>
             </div>
           </div>
@@ -131,7 +166,7 @@ export default function ExtensionsPage() {
 
       {/* Browser Cards */}
       <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
-        下载扩展
+        {t.extensions.downloadExtension}
       </h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {browsers.map((browser) => (
@@ -157,7 +192,7 @@ export default function ExtensionsPage() {
                 fontSize: '0.75rem',
                 fontWeight: 600
               }}>
-                推荐
+                {t.extensions.recommended}
               </div>
             )}
             <div style={{ 
@@ -177,7 +212,7 @@ export default function ExtensionsPage() {
               {browser.name}
             </h3>
             <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              {browser.users}用户
+              {isZh ? browser.users : browser.usersEn} {t.extensions.users}
             </p>
             <div style={{ 
               display: 'flex', 
@@ -186,7 +221,7 @@ export default function ExtensionsPage() {
               justifyContent: 'center',
               marginBottom: '1.25rem'
             }}>
-              {browser.features.map((feature, i) => (
+              {(isZh ? browser.features : browser.featuresEn).map((feature, i) => (
                 <span key={i} style={{ 
                   padding: '0.25rem 0.5rem',
                   backgroundColor: 'var(--bg-tertiary)',
@@ -206,7 +241,7 @@ export default function ExtensionsPage() {
               marginBottom: '1rem'
             }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-                版本 {browser.version}
+                {t.extensions.version} {browser.version}
               </span>
             </div>
             <a 
@@ -218,7 +253,7 @@ export default function ExtensionsPage() {
               }}
             >
               <Download size={18} />
-              下载安装
+              {t.extensions.install}
             </a>
           </div>
         ))}
@@ -228,7 +263,7 @@ export default function ExtensionsPage() {
       <div className="card">
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Monitor size={24} style={{ color: 'var(--accent-color)' }} />
-          功能预览
+          {t.extensions.preview}
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           {screenshots.map((screenshot, index) => (
@@ -246,7 +281,7 @@ export default function ExtensionsPage() {
                 height: '60px', 
                 borderRadius: '8px',
                 backgroundColor: 'var(--bg-primary)',
-                margin: '0 auto  1rem',
+                margin: '0 auto 1rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -256,10 +291,10 @@ export default function ExtensionsPage() {
                 {index === 0 ? '🖱️' : index === 1 ? '🪟' : '⌨️'}
               </div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                {screenshot.title}
+                {t.extensions[screenshot.titleKey]}
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                {screenshot.desc}
+                {t.extensions[screenshot.descKey]}
               </p>
             </div>
           ))}
@@ -269,15 +304,10 @@ export default function ExtensionsPage() {
       {/* Installation Guide */}
       <div className="card">
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-          安装指南
+          {t.extensions.installationGuide}
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {[
-            { step: '1', title: '下载扩展', desc: '点击上方下载按钮，获取Chrome扩展包(.crx)' },
-            { step: '2', title: '打开扩展页面', desc: '在Chrome地址栏输入 chrome://extensions/ 并回车' },
-            { step: '3', title: '开启开发者模式', desc: '页面右上角开启"开发者模式"' },
-            { step: '4', title: '拖拽安装', desc: '将下载的.crx文件拖拽到扩展页面即可安装' },
-          ].map((item, index) => (
+          {installSteps.map((item, index) => (
             <div key={index} style={{ 
               display: 'flex', 
               gap: '1rem',
@@ -295,14 +325,14 @@ export default function ExtensionsPage() {
                 fontWeight: 600,
                 flexShrink: 0
               }}>
-                {item.step}
+                {index + 1}
               </div>
               <div>
                 <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-                  {item.title}
+                  {t.extensions[item.stepKey]}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  {item.desc}
+                  {t.extensions[item.descKey]}
                 </p>
               </div>
             </div>
@@ -313,15 +343,10 @@ export default function ExtensionsPage() {
       {/* Keyboard Shortcuts */}
       <div className="card" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-          快捷键
+          {t.extensions.keyboardShortcuts}
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          {[
-            { keys: 'Ctrl + Shift + E', desc: 'Base64编码选中文字' },
-            { keys: 'Ctrl + Shift + D', desc: 'Base64解码选中文字' },
-            { keys: 'Ctrl + Shift + U', desc: 'URL-safe编码' },
-            { keys: 'Ctrl + Shift + X', desc: '打开扩展面板' },
-          ].map((shortcut, index) => (
+          {shortcuts.map((shortcut, index) => (
             <div key={index} style={{ 
               display: 'flex', 
               alignItems: 'center',
@@ -341,7 +366,7 @@ export default function ExtensionsPage() {
                 {shortcut.keys}
               </kbd>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                {shortcut.desc}
+                {t.extensions[shortcut.descKey]}
               </span>
             </div>
           ))}
@@ -353,10 +378,10 @@ export default function ExtensionsPage() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <a href="#" className="btn btn-primary" style={{ textDecoration: 'none' }}>
             <Chrome size={18} />
-            下载Chrome扩展
+            {t.extensions.downloadChrome}
           </a>
           <Link href="/cli" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            查看命令行工具
+            {t.extensions.viewCLI}
             <ArrowRight size={18} />
           </Link>
         </div>

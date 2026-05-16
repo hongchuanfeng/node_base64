@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { encodeBase64, decodeBase64 } from '@/lib/base64';
-import { Copy, Code, Check } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const languages = [
   { name: 'JavaScript', icon: 'JS', color: '#f7df1e' },
@@ -187,6 +188,7 @@ fn main() {
 };
 
 export default function CodeSnippetGenerator() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [selectedLang, setSelectedLang] = useState('JavaScript');
@@ -202,7 +204,7 @@ export default function CodeSnippetGenerator() {
         return decodeBase64(input.replace(/\s/g, ''), 'utf-8');
       }
     } catch {
-      return '解码错误：不是有效的 Base64 字符串';
+      return t.codeSnippet.decodeError;
     }
   };
 
@@ -210,10 +212,10 @@ export default function CodeSnippetGenerator() {
     try {
       await navigator.clipboard.writeText(code);
       setCopiedId(id);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
   };
 
@@ -233,31 +235,31 @@ export default function CodeSnippetGenerator() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          一键生成代码片段
+          {t.codeSnippet.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          输入文本或 Base64 字符串，自动生成多语言代码示例，点击即可复制
+          {t.codeSnippet.subtitle}
         </p>
       </div>
 
       {/* Mode Toggle */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <span style={{ fontWeight: 500 }}>操作模式：</span>
+          <span style={{ fontWeight: 500 }}>{t.codeSnippet.operationMode}:</span>
           <div style={{ display: 'flex', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', padding: '4px' }}>
             <button
               onClick={() => setMode('encode')}
               className={mode === 'encode' ? 'btn btn-primary' : 'btn btn-secondary'}
               style={{ minWidth: '100px' }}
             >
-              编码 (Encode)
+              {t.codeSnippet.encode}
             </button>
             <button
               onClick={() => setMode('decode')}
               className={mode === 'decode' ? 'btn btn-primary' : 'btn btn-secondary'}
               style={{ minWidth: '100px' }}
             >
-              解码 (Decode)
+              {t.codeSnippet.decode}
             </button>
           </div>
         </div>
@@ -267,12 +269,12 @@ export default function CodeSnippetGenerator() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div className="card">
           <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            输入 {mode === 'encode' ? '原文' : 'Base64'}
+            {t.codeSnippet.inputPlaintext} {mode === 'encode' ? t.codeSnippet.inputPlaintext : t.codeSnippet.inputBase64}
           </h3>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'encode' ? '输入要编码的文本...' : '输入 Base64 字符串...'}
+            placeholder={mode === 'encode' ? t.codeSnippet.inputPlaceholderEncode : t.codeSnippet.inputPlaceholderDecode}
             className="input-field"
             style={{ minHeight: '150px', fontFamily: 'monospace' }}
           />
@@ -280,7 +282,7 @@ export default function CodeSnippetGenerator() {
 
         <div className="card">
           <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            预览 {mode === 'encode' ? 'Base64 结果' : '解码结果'}
+            {t.codeSnippet.preview} {mode === 'encode' ? t.codeSnippet.previewBase64Result : t.codeSnippet.previewDecodeResult}
           </h3>
           <div style={{
             padding: '1rem',
@@ -289,9 +291,9 @@ export default function CodeSnippetGenerator() {
             minHeight: '150px',
             fontFamily: 'monospace',
             wordBreak: 'break-all',
-            color: output.startsWith('解码错误') ? 'var(--error-color)' : 'var(--accent-color)'
+            color: output.startsWith(t.codeSnippet.decodeError) ? 'var(--error-color)' : 'var(--accent-color)'
           }}>
-            {output || '预览结果将在此显示...'}
+            {output || t.codeSnippet.previewResultHint}
           </div>
         </div>
       </div>
@@ -299,10 +301,10 @@ export default function CodeSnippetGenerator() {
       {/* Language Selection */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>选择编程语言</h3>
+          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.codeSnippet.selectLanguage}</h3>
           <button className="btn btn-primary" onClick={handleCopyAll}>
             <Copy size={14} />
-            复制全部代码
+            {t.codeSnippet.copyAllCode}
           </button>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
@@ -331,7 +333,7 @@ export default function CodeSnippetGenerator() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1rem' }}>
         {languages.map((lang) => {
           const code = mode === 'encode' 
-            ? codeTemplates[lang.name].encode(input || '示例文本')
+            ? codeTemplates[lang.name].encode(input || 'Hello World')
             : codeTemplates[lang.name].decode(input || 'SGVsbG8gV29ybGQ=');
           
           return (
@@ -360,7 +362,7 @@ export default function CodeSnippetGenerator() {
                   style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}
                 >
                   {copiedId === lang.name ? <Check size={14} /> : <Copy size={14} />}
-                  {copiedId === lang.name ? '已复制' : '复制'}
+                  {copiedId === lang.name ? t.codeSnippet.copied : t.codeSnippet.copy}
                 </button>
               </div>
               <pre style={{
@@ -385,13 +387,13 @@ export default function CodeSnippetGenerator() {
 
       {/* Note */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
-        <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>使用说明</h3>
+        <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>{t.codeSnippet.usageInstructions}</h3>
         <ul style={{ color: 'var(--text-secondary)', paddingLeft: '1.5rem', lineHeight: 2 }}>
-          <li>选择编码或解码模式</li>
-          <li>输入要处理的文本或 Base64 字符串</li>
-          <li>查看所有语言的代码示例，点击任意语言卡片上的复制按钮</li>
-          <li>或点击"复制全部代码"一次性复制所有语言</li>
-          <li>注意：Rust 代码需要添加 <code style={{ background: 'var(--bg-tertiary)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>base64</code> 依赖</li>
+          <li>{t.codeSnippet.usageStep1}</li>
+          <li>{t.codeSnippet.usageStep2}</li>
+          <li>{t.codeSnippet.usageStep3}</li>
+          <li>{t.codeSnippet.usageStep4}</li>
+          <li>{t.codeSnippet.usageStep5}</li>
         </ul>
       </div>
 

@@ -2,52 +2,55 @@
 
 import Link from 'next/link';
 import { Zap } from 'lucide-react';
-
-const footerLinks = [
-  { href: '/about', label: '关于我们' },
-  { href: '/contact', label: '联系我们' },
-  { href: '/privacy', label: '隐私政策' },
-  { href: '/terms', label: '服务条款' },
-  { href: '/disclaimer', label: '免责声明' },
-  { href: '/copyright', label: '版权声明' },
-];
-
-const advancedFooterLinks = [
-  { href: '/diff', label: 'Diff对比', isNew: true },
-  { href: '/regex-extract', label: '正则提取', isNew: true },
-  { href: '/code-snippet', label: '代码生成', isNew: true },
-  { href: '/smart-detect', label: '智能识别', isNew: true },
-  { href: '/self-destruct', label: '自毁模式', isNew: true },
-  { href: '/large-file', label: '大文件处理', isNew: true },
-  { href: '/smart-base64', label: '智能Base64' },
-  { href: '/analyze', label: '解码分析' },
-  { href: '/security', label: '安全检测' },
-  { href: '/batch', label: '批量处理' },
-];
+import { useLanguage } from '@/hooks/useLanguage';
 
 const friendLinks = [
-  { name: '免费图片处理', url: 'https://mosaic.chdaoai.com/' },
-  { name: 'IceBreakGame', url: 'https://www.icebreakgame.com/' },
-  { name: '视频去水印', url: 'https://www.removewatermarker.com/' },
-  { name: 'PDF转换工具', url: 'https://pdf.chdaoai.com/' },
-  { name: '在线生成二维码', url: 'https://qrcode.chdaoai.com/' },
-  { name: 'NBA趣事', url: 'https://www.zorezoro.com/' },
-  { name: '视频转文字', url: 'https://video2txt.zorezoro.com/' },
-  { name: '图片去水印', url: 'https://www.chdaoai.com/' },
-  { name: '传道AI工具', url: 'https://www.openai2025.com/' },
-  { name: '中国功夫网', url: 'https://gf.zorezoro.com/' },
-  { name: '中国菜系大全', url: 'https://food.zorezoro.com/' },
-  { name: '中国24史', url: 'https://china.zorezoro.com/' },
+  { name: '免费图片处理', nameEn: 'Free Image Processing', url: 'https://mosaic.chdaoai.com/' },
+  { name: 'IceBreakGame', nameEn: 'IceBreakGame', url: 'https://www.icebreakgame.com/' },
+  { name: '视频去水印', nameEn: 'Video Watermark Removal', url: 'https://www.removewatermarker.com/' },
+  { name: 'PDF转换工具', nameEn: 'PDF Converter', url: 'https://pdf.chdaoai.com/' },
+  { name: '在线生成二维码', nameEn: 'Online QR Code Generator', url: 'https://qrcode.chdaoai.com/' },
+  { name: 'NBA趣事', nameEn: 'NBA Fun Facts', url: 'https://www.zorezoro.com/' },
+  { name: '视频转文字', nameEn: 'Video to Text', url: 'https://video2txt.zorezoro.com/' },
+  { name: '图片去水印', nameEn: 'Image Watermark Removal', url: 'https://www.chdaoai.com/' },
+  { name: '传道AI工具', nameEn: 'ChuanDaoAI Tools', url: 'https://www.openai2025.com/' },
+  { name: '中国功夫网', nameEn: 'Chinese Kung Fu', url: 'https://gf.zorezoro.com/' },
+  { name: '中国菜系大全', nameEn: 'Chinese Cuisine Guide', url: 'https://food.zorezoro.com/' },
+  { name: '中国24史', nameEn: 'Chinese History', url: 'https://china.zorezoro.com/' },
 ];
 
 export function Footer() {
+  const { t, language } = useLanguage();
+
+  const footerLinks = [
+    { href: '/about', label: t.footer.aboutUs },
+    { href: '/contact', label: t.footer.contactUs },
+    { href: '/privacy', label: t.footer.privacyPolicy },
+    { href: '/terms', label: t.footer.termsOfService },
+    { href: '/disclaimer', label: t.footer.disclaimer },
+    { href: '/copyright', label: t.footer.copyright },
+  ];
+
+  const advancedFooterLinks = [
+    { href: '/diff', label: t.nav.diff, isNew: true },
+    { href: '/regex-extract', label: t.nav.regexExtract, isNew: true },
+    { href: '/code-snippet', label: t.nav.codeSnippet, isNew: true },
+    { href: '/smart-detect', label: t.nav.smartDetect, isNew: true },
+    { href: '/self-destruct', label: t.nav.selfDestruct, isNew: true },
+    { href: '/large-file', label: t.nav.largeFile, isNew: true },
+    { href: '/smart-base64', label: t.nav.smartBase64 },
+    { href: '/analyze', label: t.nav.analyze },
+    { href: '/security', label: t.nav.security },
+    { href: '/batch', label: t.nav.batch },
+  ];
+
   return (
     <footer className="footer">
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto'
       }}>
-        {/* 底部链接 */}
+        {/* Footer Links */}
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -66,7 +69,7 @@ export function Footer() {
           ))}
         </div>
 
-        {/* 版权信息 */}
+        {/* Copyright Info */}
         <div style={{
           textAlign: 'center',
           marginBottom: '2rem'
@@ -76,24 +79,24 @@ export function Footer() {
             fontSize: '0.85rem',
             marginBottom: '0.5rem'
           }}>
-            © 2025 传道AI · 版权所有
+            {t.footer.copyrightText}
           </p>
           <p style={{
             color: 'var(--text-tertiary)',
             fontSize: '0.85rem',
             marginBottom: '0.5rem'
           }}>
-            工业和信息化部 粤ICP备18041392号-7
+            {t.footer.icp}
           </p>
           <p style={{
             color: 'var(--text-tertiary)',
             fontSize: '0.85rem'
           }}>
-            邮箱：support@base64.club | 地址：深圳市龙华区龙华大道130栋
+            {t.footer.email}: support@base64.club | {t.footer.address}: 深圳市龙华区龙华大道130栋
           </p>
         </div>
 
-        {/* 友情链接 */}
+        {/* Friend Links */}
         <div style={{
           borderTop: '1px solid var(--border-color)',
           paddingTop: '2rem'
@@ -104,7 +107,7 @@ export function Footer() {
             marginBottom: '1rem',
             textAlign: 'center'
           }}>
-            友情链接
+            {t.footer.friendLinks}
           </h3>
           <div style={{
             display: 'grid',
@@ -119,7 +122,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="footer-link"
               >
-                {link.name}
+                {language === 'zh' ? link.name : link.nameEn}
               </a>
             ))}
           </div>

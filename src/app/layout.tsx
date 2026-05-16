@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { LanguageProvider } from '@/hooks/useLanguage';
 
 export const metadata: Metadata = {
   title: '传道AI - 免费在线Base64编码解码工具',
@@ -21,6 +22,26 @@ export const metadata: Metadata = {
   },
 };
 
+function ThemeScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            try {
+              var theme = localStorage.getItem('theme');
+              if (!theme) {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              }
+              document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+          })();
+        `,
+      }}
+    />
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -30,6 +51,7 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <ThemeScript />
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-8NMLH22Y6G" />
         <script
@@ -44,26 +66,13 @@ export default function RootLayout({
         />
         {/* Google AdSense */}
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7274710287377352" crossOrigin="anonymous" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  if (!theme) {
-                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  }
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
       </head>
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,9 +3,11 @@
 import { useState, useCallback } from 'react';
 import { isValidBase64, detectBase64ContentType, analyzeBase64Structure, estimateBase64FileSize } from '@/lib/base64';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Search, FileText, Image, File, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AnalyzeTool() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [analysis, setAnalysis] = useState<{
     isValid: boolean;
@@ -17,7 +19,7 @@ export default function AnalyzeTool() {
 
   const handleAnalyze = useCallback(() => {
     if (!input.trim()) {
-      showToast('请输入要分析的Base64字符串', 'error');
+      showToast(t.errors.base64InputEmpty, 'error');
       return;
     }
 
@@ -28,11 +30,11 @@ export default function AnalyzeTool() {
       const size = estimateBase64FileSize(input);
 
       setAnalysis({ isValid, contentType, structure, size });
-      showToast('分析完成', 'success');
+      showToast(t.common.success, 'success');
     } catch (error) {
-      showToast('分析失败，请检查输入', 'error');
+      showToast(t.errors.decodingFailed, 'error');
     }
-  }, [input, showToast]);
+  }, [input, showToast, t]);
 
   const handleReset = useCallback(() => {
     setInput('');
@@ -43,23 +45,23 @@ export default function AnalyzeTool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          Base64解码分析
+          {t.tools.analyze.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          自动识别编码类型，判断输入是否为有效Base64，分析解码后的内容格式和结构信息。
+          {t.tools.analyze.description}
         </p>
       </div>
 
       {/* Input Area */}
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontWeight: 600 }}>输入Base64字符串</h3>
-          <button className="btn btn-secondary" onClick={handleReset}>清空</button>
+          <h3 style={{ fontWeight: 600 }}>{t.tools.imageBase64.inputBase64}</h3>
+          <button className="btn btn-secondary" onClick={handleReset}>{t.common.clear}</button>
         </div>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="在此粘贴Base64字符串进行分析..."
+          placeholder={t.tools.analyze.placeholder}
           className="input-field"
           style={{ minHeight: '150px', fontFamily: 'monospace' }}
         />
@@ -69,7 +71,7 @@ export default function AnalyzeTool() {
           style={{ marginTop: '1rem', width: '100%' }}
         >
           <Search size={16} />
-          开始分析
+          {t.tools.analyze.analyze}
         </button>
       </div>
 
@@ -82,12 +84,12 @@ export default function AnalyzeTool() {
               {analysis.isValid ? (
                 <>
                   <CheckCircle size={20} style={{ color: 'var(--success-color)' }} />
-                  有效性检查
+                  {t.tools.analyze.analyze}
                 </>
               ) : (
                 <>
                   <XCircle size={20} style={{ color: 'var(--error-color)' }} />
-                  有效性检查
+                  {t.tools.analyze.analyze}
                 </>
               )}
             </h3>
@@ -102,12 +104,12 @@ export default function AnalyzeTool() {
                 fontWeight: 'bold',
                 color: analysis.isValid ? 'var(--success-color)' : 'var(--error-color)'
               }}>
-                {analysis.isValid ? '有效的 Base64' : '无效的 Base64'}
+                {analysis.isValid ? 'Valid Base64' : 'Invalid Base64'}
               </p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                 {analysis.isValid 
-                  ? '输入字符串符合 Base64 编码规范'
-                  : '输入字符串不符合 Base64 编码规范'}
+                  ? 'Input string conforms to Base64 encoding specification'
+                  : 'Input string does not conform to Base64 encoding specification'}
               </p>
             </div>
           </div>
@@ -124,22 +126,22 @@ export default function AnalyzeTool() {
               ) : (
                 <AlertTriangle size={20} style={{ color: 'var(--warning-color)' }} />
               )}
-              内容类型识别
+              {t.tools.analyze.contentType}
             </h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>检测类型</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{t.tools.analyze.contentType}</span>
                 <span style={{ fontWeight: 500, textTransform: 'capitalize' }}>{analysis.contentType.type}</span>
               </div>
               {analysis.contentType.mimeType && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>MIME类型</span>
+                  <span style={{ color: 'var(--text-tertiary)' }}>MIME Type</span>
                   <span style={{ fontWeight: 500 }}>{analysis.contentType.mimeType}</span>
                 </div>
               )}
               {analysis.contentType.info && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>详细信息</span>
+                  <span style={{ color: 'var(--text-tertiary)' }}>Details</span>
                   <span style={{ fontWeight: 500 }}>{analysis.contentType.info}</span>
                 </div>
               )}
@@ -150,39 +152,39 @@ export default function AnalyzeTool() {
           <div className="card">
             <h3 style={{ fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Info size={20} style={{ color: 'var(--accent-color)' }} />
-              结构分析
+              Structure Analysis
             </h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>Base64长度</span>
-                <span style={{ fontWeight: 500 }}>{analysis.structure.length} 字符</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{t.tools.fileBase64.base64Length}</span>
+                <span style={{ fontWeight: 500 }}>{analysis.structure.length} chars</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>填充字符</span>
-                <span style={{ fontWeight: 500 }}>{analysis.structure.paddingChars} 个 (=)</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Padding</span>
+                <span style={{ fontWeight: 500 }}>{analysis.structure.paddingChars} (=)</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>字符熵值</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Entropy</span>
                 <span style={{ fontWeight: 500 }}>{analysis.structure.entropy} bits</span>
               </div>
               <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>字符集分布</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Character Distribution</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-color)', fontWeight: 600 }}>{analysis.structure.charSet.uppercase}</div>
-                    <div style={{ color: 'var(--text-tertiary)' }}>大写</div>
+                    <div style={{ color: 'var(--text-tertiary)' }}>Upper</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ color: 'var(--success-color)', fontWeight: 600 }}>{analysis.structure.charSet.lowercase}</div>
-                    <div style={{ color: 'var(--text-tertiary)' }}>小写</div>
+                    <div style={{ color: 'var(--text-tertiary)' }}>Lower</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ color: 'var(--warning-color)', fontWeight: 600 }}>{analysis.structure.charSet.digits}</div>
-                    <div style={{ color: 'var(--text-tertiary)' }}>数字</div>
+                    <div style={{ color: 'var(--text-tertiary)' }}>Digit</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{analysis.structure.charSet.symbols}</div>
-                    <div style={{ color: 'var(--text-tertiary)' }}>符号</div>
+                    <div style={{ color: 'var(--text-tertiary)' }}>Symbol</div>
                   </div>
                 </div>
               </div>
@@ -193,19 +195,19 @@ export default function AnalyzeTool() {
           <div className="card">
             <h3 style={{ fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <File size={20} style={{ color: 'var(--accent-color)' }} />
-              大小分析
+              Size Analysis
             </h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>Base64大小</span>
-                <span style={{ fontWeight: 500 }}>{analysis.size.encodedSize} 字节</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Base64 Size</span>
+                <span style={{ fontWeight: 500 }}>{analysis.size.encodedSize} bytes</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>解码后大小</span>
-                <span style={{ fontWeight: 500 }}>{analysis.size.decodedSize} 字节</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Decoded Size</span>
+                <span style={{ fontWeight: 500 }}>{analysis.size.decodedSize} bytes</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>编码开销</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>Overhead</span>
                 <span style={{ fontWeight: 500 }}>{analysis.size.compressionRatio}%</span>
               </div>
             </div>

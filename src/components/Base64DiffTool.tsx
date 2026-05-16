@@ -4,8 +4,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { decodeBase64 } from '@/lib/base64';
 import { Copy, ArrowLeftRight, Eye, EyeOff, Download, Trash2 } from 'lucide-react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function Base64DiffTool() {
+  const { t } = useLanguage();
   const [inputA, setInputA] = useState('');
   const [inputB, setInputB] = useState('');
   const [showDiff, setShowDiff] = useState(false);
@@ -73,34 +75,34 @@ export default function Base64DiffTool() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.diff.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.diff.copyFailed, 'error');
     }
   };
 
   const handleDownload = () => {
     if (!computeDiff) return;
-    const content = `Base64 Diff 对比报告
+    const content = `${t.diff.diffReportTitle}
 ${'='.repeat(50)}
-左侧内容: ${inputA.substring(0, 50)}${inputA.length > 50 ? '...' : ''}
-右侧内容: ${inputB.substring(0, 50)}${inputB.length > 50 ? '...' : ''}
+${t.diff.leftContent}: ${inputA.substring(0, 50)}${inputA.length > 50 ? '...' : ''}
+${t.diff.rightContent}: ${inputB.substring(0, 50)}${inputB.length > 50 ? '...' : ''}
 
-对比模式: ${decodeBeforeDiff ? '解码后对比' : '原始Base64对比'}
+${t.diff.compareMode}: ${decodeBeforeDiff ? t.diff.decodedCompare : t.diff.rawCompare}
 
-统计信息:
-- 相似度: ${computeDiff.similarity}%
-- 相同字符: ${computeDiff.sameCount}
-- 差异字符: ${computeDiff.diffCount}
-- 总长度: ${computeDiff.maxLen}
+${t.diff.statistics}:
+- ${t.diff.similarityLabel}: ${computeDiff.similarity}%
+- ${t.diff.sameChars}: ${computeDiff.sameCount}
+- ${t.diff.diffChars}: ${computeDiff.diffCount}
+- ${t.diff.totalLengthLabel}: ${computeDiff.maxLen}
 
 ${'='.repeat(50)}
-详细对比:
+${t.diff.detailedDiff}:
 ${computeDiff.diffChars.map(d => {
   if (d.type === 'same') return `  ${d.index.toString().padStart(4)}: "${d.charA}" === "${d.charB}"`;
   if (d.type === 'diff') return `* ${d.index.toString().padStart(4)}: "${d.charA}" !== "${d.charB}"`;
-  if (d.type === 'onlyA') return `- ${d.index.toString().padStart(4)}: "${d.charA}" [仅A]`;
-  return `+ ${d.index.toString().padStart(4)}: "${d.charB}" [仅B]`;
+  if (d.type === 'onlyA') return `- ${d.index.toString().padStart(4)}: "${d.charA}" [${t.diff.legendOnlyA}]`;
+  return `+ ${d.index.toString().padStart(4)}: "${d.charB}" [${t.diff.legendOnlyB}]`;
 }).join('\n')}
 `;
     const blob = new Blob([content], { type: 'text/plain' });
@@ -110,17 +112,17 @@ ${computeDiff.diffChars.map(d => {
     a.download = `base64-diff-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('报告已下载', 'success');
+    showToast(t.diff.reportDownloaded, 'success');
   };
 
   return (
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          Base64 Diff 对比
+          {t.diff.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          同时对比两个 Base64 字符串，高亮显示差异，快速排查编码配置问题
+          {t.diff.subtitle}
         </p>
       </div>
 
@@ -133,33 +135,33 @@ ${computeDiff.diffChars.map(d => {
                 <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success-color)' }}>
                   {computeDiff.similarity}%
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>相似度</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{t.diff.similarity}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                   {computeDiff.sameCount}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>相同</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{t.diff.same}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--error-color)' }}>
                   {computeDiff.diffCount}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>差异</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{t.diff.diff}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-color)' }}>
                   {computeDiff.maxLen}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>总长度</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{t.diff.totalLength}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn btn-secondary" onClick={handleDownload} title="下载报告">
-                <Download size={16} /> 报告
+              <button className="btn btn-secondary" onClick={handleDownload} title={t.diff.downloadReport}>
+                <Download size={16} /> {t.diff.downloadReport}
               </button>
-              <button className="btn btn-secondary" onClick={handleClear} title="清空">
-                <Trash2 size={16} /> 清空
+              <button className="btn btn-secondary" onClick={handleClear} title={t.diff.clear}>
+                <Trash2 size={16} /> {t.diff.clear}
               </button>
             </div>
           </div>
@@ -176,10 +178,10 @@ ${computeDiff.diffChars.map(d => {
               onChange={(e) => setDecodeBeforeDiff(e.target.checked)}
               style={{ width: '18px', height: '18px' }}
             />
-            <span style={{ fontWeight: 500 }}>解码后对比</span>
+            <span style={{ fontWeight: 500 }}>{t.diff.decodeBeforeCompare}</span>
           </label>
           <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-            勾选：对比解码后的内容 | 取消：对比原始 Base64 字符串
+            {t.diff.compareHint}
           </span>
         </div>
       </div>
@@ -189,12 +191,12 @@ ${computeDiff.diffChars.map(d => {
         {/* Left Input */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>Base64 A</span>
+            <span style={{ fontWeight: 500 }}>{t.diff.base64A}</span>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button 
                 className="btn btn-secondary" 
                 onClick={() => handleCopy(inputA)}
-                title="复制"
+                title={t.diff.copy}
                 style={{ padding: '0.4rem' }}
               >
                 <Copy size={14} />
@@ -202,7 +204,7 @@ ${computeDiff.diffChars.map(d => {
               <button 
                 className="btn btn-secondary" 
                 onClick={() => setInputA('')}
-                title="清空"
+                title={t.diff.clear}
                 style={{ padding: '0.4rem' }}
               >
                 <Trash2 size={14} />
@@ -212,18 +214,18 @@ ${computeDiff.diffChars.map(d => {
           <textarea
             value={inputA}
             onChange={(e) => setInputA(e.target.value)}
-            placeholder="粘贴第一个 Base64 字符串..."
+            placeholder={t.diff.pastePlaceholder}
             className="input-field"
             style={{ minHeight: '250px', fontFamily: 'monospace', fontSize: '0.9rem' }}
           />
           <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-            长度: {inputA.length} 字符
+            {t.diff.length}: {inputA.length} {t.diff.char}
           </div>
         </div>
 
         {/* Center Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
-          <button className="btn btn-secondary" onClick={handleSwap} title="交换AB">
+          <button className="btn btn-secondary" onClick={handleSwap} title={t.diff.swap}>
             <ArrowLeftRight size={18} />
           </button>
           <button 
@@ -232,19 +234,19 @@ ${computeDiff.diffChars.map(d => {
             disabled={!inputA && !inputB}
           >
             {showDiff ? <EyeOff size={16} /> : <Eye size={16} />}
-            {showDiff ? '隐藏' : '对比'}
+            {showDiff ? t.diff.hide : t.diff.show}
           </button>
         </div>
 
         {/* Right Input */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>Base64 B</span>
+            <span style={{ fontWeight: 500 }}>{t.diff.base64B}</span>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button 
                 className="btn btn-secondary" 
                 onClick={() => handleCopy(inputB)}
-                title="复制"
+                title={t.diff.copy}
                 style={{ padding: '0.4rem' }}
               >
                 <Copy size={14} />
@@ -252,7 +254,7 @@ ${computeDiff.diffChars.map(d => {
               <button 
                 className="btn btn-secondary" 
                 onClick={() => setInputB('')}
-                title="清空"
+                title={t.diff.clear}
                 style={{ padding: '0.4rem' }}
               >
                 <Trash2 size={14} />
@@ -262,12 +264,12 @@ ${computeDiff.diffChars.map(d => {
           <textarea
             value={inputB}
             onChange={(e) => setInputB(e.target.value)}
-            placeholder="粘贴第二个 Base64 字符串..."
+            placeholder={t.diff.pastePlaceholder2}
             className="input-field"
             style={{ minHeight: '250px', fontFamily: 'monospace', fontSize: '0.9rem' }}
           />
           <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-            长度: {inputB.length} 字符
+            {t.diff.length}: {inputB.length} {t.diff.char}
           </div>
         </div>
       </div>
@@ -276,32 +278,32 @@ ${computeDiff.diffChars.map(d => {
       {showDiff && computeDiff && (
         <div className="card" style={{ marginTop: '1.5rem' }}>
           <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            字符级差异对比
+            {t.diff.charLevelDiff}
           </h3>
           
           {/* Legend */}
           <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.85rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '16px', height: '16px', backgroundColor: 'var(--success-color)', borderRadius: '3px' }} />
-              <span>相同</span>
+              <span>{t.diff.legendSame}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '16px', height: '16px', backgroundColor: 'var(--error-color)', borderRadius: '3px' }} />
-              <span>差异</span>
+              <span>{t.diff.legendDiff}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '16px', height: '16px', backgroundColor: '#3b82f6', borderRadius: '3px' }} />
-              <span>仅A</span>
+              <span>{t.diff.legendOnlyA}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '16px', height: '16px', backgroundColor: '#f59e0b', borderRadius: '3px' }} />
-              <span>仅B</span>
+              <span>{t.diff.legendOnlyB}</span>
             </div>
           </div>
 
           {/* Column Headers */}
           <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: 500 }}>
-            <div style={{ color: 'var(--text-tertiary)' }}>位置</div>
+            <div style={{ color: 'var(--text-tertiary)' }}>{t.diff.position}</div>
             <div>A</div>
             <div>B</div>
           </div>
@@ -348,24 +350,24 @@ ${computeDiff.diffChars.map(d => {
       {/* Common Issues */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          常见差异原因排查
+          {t.diff.commonDiffReasons}
         </h3>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔤 字符集差异</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>UTF-8 vs GBK vs Latin-1，相同内容编码结果完全不同</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔤 {t.diff.charsetDiff}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.diff.charsetDiffDesc}</div>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>📏 换行符差异</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>CRLF(\r\n) vs LF(\n)，MIME格式每76字符换行vs无换行</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>📏 {t.diff.lineEndingDiff}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.diff.lineEndingDiffDesc}</div>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔒 Padding 差异</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>有无 = 或 == 填充符，虽然解码结果相同但字符串不同</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔒 {t.diff.paddingDiff}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.diff.paddingDiffDesc}</div>
           </div>
           <div style={{ padding: '1rem', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔄 URL-safe 差异</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>+ / = vs - _ ，标准 Base64 与 URL-safe Base64 互转</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>🔄 {t.diff.urlSafeDiff}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{t.diff.urlSafeDiffDesc}</div>
           </div>
         </div>
       </div>

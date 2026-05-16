@@ -1,13 +1,10 @@
+'use client';
+
 import Link from 'next/link';
-import type { Metadata } from 'next';
+import { useLanguage } from '@/hooks/useLanguage';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Base64面试题 - 传道AI',
-  description: '收集整理常见的Base64相关面试题与详细解答，助你面试成功。',
-};
-
-const questions = [
+const questionsZh = [
   {
     q: '什么是Base64？为什么需要Base64编码？',
     a: 'Base64是一种基于64个可打印字符来表示二进制数据的编码方式。需要它主要是因为：1) 早期网络协议（如SMTP）只能传输ASCII文本；2) 某些系统需要安全传输二进制数据；3) 某些API需要将二进制数据转为文本格式传输。',
@@ -50,20 +47,66 @@ const questions = [
   },
 ];
 
+const questionsEn = [
+  {
+    q: 'What is Base64? Why do we need Base64 encoding?',
+    a: 'Base64 is an encoding method that represents binary data using 64 printable characters. We need it mainly because: 1) Early network protocols (like SMTP) could only transmit ASCII text; 2) Some systems need to safely transmit binary data; 3) Some APIs need to convert binary data to text format for transmission.',
+  },
+  {
+    q: 'What is the encoding principle of Base64?',
+    a: '1) Group every 3 bytes (24 bits) as one unit; 2) Split 24 bits into 4 groups of 6 bits each; 3) Each 6-bit group corresponds to index 0-63; 4) Look up the Base64 character table to get the corresponding character. If the last group is less than 3 bytes, pad with "=".',
+  },
+  {
+    q: 'How much does Base64 encoding increase the volume?',
+    a: 'Base64 encoding increases volume to about 4/3 of the original binary data, approximately 33% larger. Reason: 3 bytes = 24 bits = 4 Base64 characters, each character is 8 bits, so from 24 bits to 32 bits.',
+  },
+  {
+    q: 'When will the padding character "=" be used?',
+    a: 'When the number of bytes to encode is not divisible by 3: 1) 1 byte remaining: encode to 2 characters then add 2 "="; 2) 2 bytes remaining: encode to 3 characters then add 1 "=". Complete 3-byte groups do not need padding.',
+  },
+  {
+    q: 'What is the difference between Base64 and Base64URL?',
+    a: 'Base64 uses characters: +, /; Base64URL uses: -, _. This is because + and / need URL encoding in URLs, and / may cause path ambiguity. Base64URL also removes trailing "=".',
+  },
+  {
+    q: 'Is Base64 encryption? Why?',
+    a: 'Base64 is not encryption, it is encoding. Encoding is a publicly reversible conversion that anyone can decode. Real encryption requires a key and should not allow inference of plaintext from ciphertext. Base64 only changes the representation of data without any security.',
+  },
+  {
+    q: 'Is Base64 suitable for large files? Why?',
+    a: 'No. Reasons: 1) 33% size increase; 2) Encoding/decoding computational overhead; 3) Encoded text is not suitable for chunked transmission. For large files, binary format or chunked transmission is recommended. Base64 is suitable for small data like API tokens, small images, etc.',
+  },
+  {
+    q: 'How to determine if a string is valid Base64?',
+    a: '1) Length must be a multiple of 4; 2) Can only contain Base64 character set; 3) At most 2 trailing "="; 4) "=" can only be at the end. You can also try to decode and see if it correctly restores the original byte count.',
+  },
+  {
+    q: 'How to perform Base64 encoding/decoding in browsers?',
+    a: 'Use btoa() for encoding and atob() for decoding. Note these functions only support Latin1 characters. For Unicode characters, use TextEncoder/TextDecoder first.',
+  },
+  {
+    q: 'What are common application scenarios for Base64?',
+    a: '1) Email attachment encoding (MIME); 2) Data URL embedding images; 3) JWT Token Payload; 4) API binary data transmission; 5) Key and token encoding; 6) Binary data in configuration files.',
+  },
+];
+
 export default function InterviewPage() {
+  const { t, language } = useLanguage();
+  const questions = language === 'zh' ? questionsZh : questionsEn;
+
   return (
     <div className="tool-container">
       <Link href="/learn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        <ArrowLeft size={16} /> 返回学习中心
+        <ArrowLeft size={16} /> {t.learn.backToLearn}
       </Link>
 
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '1rem' }}>
-        Base64面试题整理
+        {t.learn.interviewTitle}
       </h1>
 
       <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}>
         <p style={{ color: 'var(--text-secondary)' }}>
-          以下是常见的Base64相关面试题，涵盖原理、实践和注意事项。建议理解原理而非死记硬背。
+          {t.learn.interviewIntro}
         </p>
       </div>
 
@@ -82,22 +125,22 @@ export default function InterviewPage() {
       </div>
 
       <div className="card" style={{ marginTop: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>加分项</h2>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>{t.learn.bonusPoints}</h2>
         <ul style={{ color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.5rem' }}>
-          <li>能手写Base64编码过程</li>
-          <li>了解不同编程语言的Base64 API</li>
-          <li>知道Base64的性能开销和优化方法</li>
-          <li>了解Base64变种及其适用场景</li>
-          <li>能说出Base64与其他编码（Hex、Base58等）的对比</li>
+          <li>{t.learn.bonus1}</li>
+          <li>{t.learn.bonus2}</li>
+          <li>{t.learn.bonus3}</li>
+          <li>{t.learn.bonus4}</li>
+          <li>{t.learn.bonus5}</li>
         </ul>
       </div>
 
       <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <Link href="/learn/comparison" className="btn btn-secondary">
-          <ArrowLeft size={16} /> 上一课
+          <ArrowLeft size={16} /> {t.learn.previous}
         </Link>
         <Link href="/learn/demo" className="btn btn-primary">
-          下一课：JavaScript演示 <ArrowRight size={16} />
+          {t.learn.next}：{t.learn.demo.title} <ArrowRight size={16} />
         </Link>
       </div>
     </div>

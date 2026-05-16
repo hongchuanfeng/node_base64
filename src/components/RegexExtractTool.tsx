@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { decodeBase64 } from '@/lib/base64';
-import { Copy, Search, Trash2, Download, Plus, ArrowRight, Check } from 'lucide-react';
+import { Copy, Search, Trash2, Download, ArrowRight, Check } from 'lucide-react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ExtractedItem {
   id: number;
@@ -14,16 +15,8 @@ interface ExtractedItem {
   preview?: string;
 }
 
-const commonPatterns = [
-  { name: 'Data URI (图片)', pattern: 'data:image/[^;]+;base64,([^"]+)', desc: '匹配 HTML/CSS 中的 Base64 图片' },
-  { name: '通用 Base64', pattern: '(eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*)', desc: '匹配 JWT Token' },
-  { name: '附件/邮件', pattern: 'Content-Transfer-Encoding:\\s*base64\\s*\\n([A-Za-z0-9+/=\\r\\n]+)', desc: '匹配邮件附件' },
-  { name: 'PDF 文件', pattern: 'data:application/pdf;base64,([^"]+)', desc: '匹配 PDF Data URI' },
-  { name: 'JSON 字段', pattern: '"([A-Za-z0-9+/]{20,}={0,2})"', desc: '匹配 JSON 中的 Base64 字符串' },
-  { name: 'XML/CDATA', pattern: '<!\\[CDATA\\[([A-Za-z0-9+/]+={0,2})\\]\\]>', desc: '匹配 XML CDATA 块' },
-];
-
 export default function RegexExtractTool() {
+  const { t, language } = useLanguage();
   const [input, setInput] = useState('');
   const [customPattern, setCustomPattern] = useState('');
   const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
@@ -31,9 +24,25 @@ export default function RegexExtractTool() {
   const [showDecoded, setShowDecoded] = useState<number[]>([]);
   const { toasts, showToast } = useToast();
 
+  const commonPatterns = language === 'zh' ? [
+    { name: t.regexExtract.dataUriImage, pattern: 'data:image/[^;]+;base64,([^"]+)', desc: t.regexExtract.dataUriImageDesc },
+    { name: t.regexExtract.jwtPattern, pattern: '(eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*)', desc: t.regexExtract.jwtPatternDesc },
+    { name: t.regexExtract.emailAttachment, pattern: 'Content-Transfer-Encoding:\\s*base64\\s*\\n([A-Za-z0-9+/=\\r\\n]+)', desc: t.regexExtract.emailAttachmentDesc },
+    { name: t.regexExtract.pdfFile, pattern: 'data:application/pdf;base64,([^"]+)', desc: t.regexExtract.pdfFileDesc },
+    { name: t.regexExtract.jsonField, pattern: '"([A-Za-z0-9+/]{20,}={0,2})"', desc: t.regexExtract.jsonFieldDesc },
+    { name: t.regexExtract.xmlCdata, pattern: '<!\\[CDATA\\[([A-Za-z0-9+/]+={0,2})\\]\\]>', desc: t.regexExtract.xmlCdataDesc },
+  ] : [
+    { name: t.regexExtract.dataUriImage, pattern: 'data:image/[^;]+;base64,([^"]+)', desc: t.regexExtract.dataUriImageDesc },
+    { name: t.regexExtract.jwtPattern, pattern: '(eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]*)', desc: t.regexExtract.jwtPatternDesc },
+    { name: t.regexExtract.emailAttachment, pattern: 'Content-Transfer-Encoding:\\s*base64\\s*\\n([A-Za-z0-9+/=\\r\\n]+)', desc: t.regexExtract.emailAttachmentDesc },
+    { name: t.regexExtract.pdfFile, pattern: 'data:application/pdf;base64,([^"]+)', desc: t.regexExtract.pdfFileDesc },
+    { name: t.regexExtract.jsonField, pattern: '"([A-Za-z0-9+/]{20,}={0,2})"', desc: t.regexExtract.jsonFieldDesc },
+    { name: t.regexExtract.xmlCdata, pattern: '<!\\[CDATA\\[([A-Za-z0-9+/]+={0,2})\\]\\]>', desc: t.regexExtract.xmlCdataDesc },
+  ];
+
   const extractAll = (pattern: string) => {
     if (!input.trim() || !pattern.trim()) {
-      showToast('请输入文本和正则表达式', 'error');
+      showToast(t.regexExtract.enterTextAndRegex, 'error');
       return;
     }
 
@@ -72,13 +81,13 @@ export default function RegexExtractTool() {
       }
 
       if (matches.length === 0) {
-        showToast('未找到匹配的 Base64 内容', 'info');
+        showToast(t.regexExtract.noMatchFound, 'info');
       } else {
         setResults(matches);
-        showToast(`找到 ${matches.length} 个匹配`, 'success');
+        showToast(`${t.regexExtract.found} ${matches.length} ${t.regexExtract.matches}`, 'success');
       }
     } catch (e) {
-      showToast('正则表达式语法错误', 'error');
+      showToast(t.regexExtract.regexSyntaxError, 'error');
     }
   };
 
@@ -103,15 +112,15 @@ export default function RegexExtractTool() {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
   };
 
   const handleDownload = () => {
     const content = results.map((item, idx) => 
-      `【匹配 ${idx + 1}】\n原始: ${item.fullMatch}\nBase64: ${item.base64Content}\n解码: ${item.decoded || '(无效)'}\n有效: ${item.isValid ? '是' : '否'}\n${'─'.repeat(50)}`
+      `[${idx + 1}]\nOriginal: ${item.fullMatch}\nBase64: ${item.base64Content}\nDecoded: ${item.decoded || '(invalid)'}\nValid: ${item.isValid ? 'Yes' : 'No'}\n${'─'.repeat(50)}`
     ).join('\n\n');
 
     const blob = new Blob([content], { type: 'text/plain' });
@@ -121,7 +130,7 @@ export default function RegexExtractTool() {
     a.download = `extracted-base64-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('已下载提取结果', 'success');
+    showToast(t.regexExtract.downloaded, 'success');
   };
 
   const handleClear = () => {
@@ -146,17 +155,17 @@ export default function RegexExtractTool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          正则提取 Base64
+          {t.regexExtract.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          从混合文本中用正则表达式提取 Base64 字符串，支持常见格式自动识别
+          {t.regexExtract.subtitle}
         </p>
       </div>
 
       {/* Quick Patterns */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          常用模式（点击即可使用）
+          {t.regexExtract.commonPatterns}
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {commonPatterns.map((p, idx) => (
@@ -190,7 +199,7 @@ export default function RegexExtractTool() {
       {/* Custom Pattern */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          自定义正则表达式
+          {t.regexExtract.customRegex}
         </h3>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <input
@@ -200,17 +209,17 @@ export default function RegexExtractTool() {
               setCustomPattern(e.target.value);
               setSelectedPattern(null);
             }}
-            placeholder="输入正则表达式，捕获组()中的内容将作为提取结果..."
+            placeholder={t.regexExtract.regexPlaceholder}
             className="input-field"
             style={{ flex: 1, fontFamily: 'monospace' }}
           />
           <button className="btn btn-primary" onClick={handleExtract}>
             <Search size={16} />
-            提取
+            {t.regexExtract.extract}
           </button>
         </div>
         <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-          提示：使用捕获组 () 指定要提取的 Base64 部分，如 data:image/png;base64,([^"]+) 会提取逗号后的内容
+          {t.regexExtract.regexHint}
         </div>
       </div>
 
@@ -218,22 +227,22 @@ export default function RegexExtractTool() {
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-            待处理文本
+            {t.regexExtract.inputText}
           </h3>
           <button className="btn btn-secondary" onClick={handleClear}>
             <Trash2 size={14} />
-            清空
+            {t.common.clear}
           </button>
         </div>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="粘贴包含 Base64 的混合文本，如 HTML、CSS、JSON、邮件源码等..."
+          placeholder={t.regexExtract.inputPlaceholder}
           className="input-field"
           style={{ minHeight: '200px', fontFamily: 'monospace', fontSize: '0.9rem' }}
         />
         <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-          字符数: {input.length} | 字节数: {new Blob([input]).size}
+          {t.regexExtract.charCount}: {input.length} | {t.regexExtract.byteCount}: {new Blob([input]).size}
         </div>
       </div>
 
@@ -244,27 +253,27 @@ export default function RegexExtractTool() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                  找到 {results.length} 个匹配
+                  {t.regexExtract.found} {results.length} {t.regexExtract.matches}
                 </span>
                 <span style={{ color: 'var(--success-color)', fontSize: '0.9rem' }}>
-                  ✓ {results.filter(r => r.isValid).length} 个有效
+                  ✓ {results.filter(r => r.isValid).length} {t.regexExtract.valid}
                 </span>
                 <span style={{ color: 'var(--error-color)', fontSize: '0.9rem' }}>
-                  ✗ {results.filter(r => !r.isValid).length} 个无效
+                  ✗ {results.filter(r => !r.isValid).length} {t.regexExtract.invalid}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button className="btn btn-secondary" onClick={handleCopyAllBase64}>
                   <Copy size={14} />
-                  复制全部 Base64
+                  {t.regexExtract.copyAllBase64}
                 </button>
                 <button className="btn btn-secondary" onClick={handleCopyAllDecoded}>
                   <Copy size={14} />
-                  复制全部解码
+                  {t.regexExtract.copyAllDecoded}
                 </button>
                 <button className="btn btn-secondary" onClick={handleDownload}>
                   <Download size={14} />
-                  下载
+                  {t.regexExtract.download}
                 </button>
               </div>
             </div>
@@ -292,7 +301,7 @@ export default function RegexExtractTool() {
                       fontSize: '0.75rem',
                       color: 'var(--text-secondary)'
                     }}>
-                      {item.base64Content.length} 字符
+                      {item.base64Content.length} chars
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: '0.25rem' }}>
@@ -314,7 +323,7 @@ export default function RegexExtractTool() {
                 </div>
 
                 <div style={{ marginBottom: '0.75rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>原始匹配：</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>{t.regexExtract.originalMatch}:</div>
                   <div style={{ 
                     padding: '0.5rem',
                     backgroundColor: 'var(--bg-tertiary)',
@@ -331,7 +340,7 @@ export default function RegexExtractTool() {
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>Base64 内容：</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>{t.regexExtract.base64Content}:</div>
                   <div style={{ 
                     padding: '0.5rem',
                     backgroundColor: 'var(--bg-secondary)',
@@ -347,7 +356,7 @@ export default function RegexExtractTool() {
 
                 {showDecoded.includes(item.id) && item.decoded && (
                   <div style={{ marginTop: '0.75rem' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>解码结果：</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.25rem' }}>{t.regexExtract.decodedResult}:</div>
                     <div style={{ 
                       padding: '0.5rem',
                       backgroundColor: item.isValid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
@@ -371,13 +380,13 @@ export default function RegexExtractTool() {
       {/* Tips */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h3 style={{ fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          使用技巧
+          {t.regexExtract.tips}
         </h3>
         <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          <div>💡 <strong>HTML 图片：</strong>直接粘贴包含 Base64 图片的 HTML 代码，工具会自动提取所有图片</div>
-          <div>💡 <strong>JSON 数据：</strong>粘贴 API 响应，提取其中的 Base64 编码字段</div>
-          <div>💡 <strong>JWT Token：</strong>使用 JWT 模式直接提取并解码 Token 内容</div>
-          <div>💡 <strong>自定义模式：</strong>使用捕获组 () 精确指定要提取的部分</div>
+          <div>💡 {t.regexExtract.tipHtml}</div>
+          <div>💡 {t.regexExtract.tipJson}</div>
+          <div>💡 {t.regexExtract.tipJwt}</div>
+          <div>💡 {t.regexExtract.tipCustom}</div>
         </div>
       </div>
 

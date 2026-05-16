@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Copy, Check, Shield, Key, AlertTriangle, Clock, FileJson } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface JWTPart {
   header: string;
@@ -43,12 +44,12 @@ function formatJson(str: string): string {
   }
 }
 
-function formatTimestamp(epoch: number): string {
+function formatTimestamp(epoch: number, locale: string = 'zh-CN'): string {
   if (epoch > 10000000000) {
     epoch = epoch / 1000;
   }
   const date = new Date(epoch * 1000);
-  return date.toLocaleString('zh-CN');
+  return date.toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US');
 }
 
 function isExpired(exp: number): boolean {
@@ -57,17 +58,18 @@ function isExpired(exp: number): boolean {
   return exp < now;
 }
 
-function getTimeUntilExpiry(exp: number): string {
+function getTimeUntilExpiry(exp: number, isZh: boolean): string {
   const now = Math.floor(Date.now() / 1000);
   const diff = exp - now;
-  if (diff < 0) return '已过期';
-  if (diff < 60) return `${diff}秒后过期`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}分钟后过期`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}小时后过期`;
-  return `${Math.floor(diff / 86400)}天后过期`;
+  if (diff < 0) return isZh ? '已过期' : 'Expired';
+  if (diff < 60) return `${diff}${isZh ? '秒后过期' : ' seconds expires'}`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}${isZh ? '分钟后过期' : ' minutes expires'}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}${isZh ? '小时后过期' : ' hours expires'}`;
+  return `${Math.floor(diff / 86400)}${isZh ? '天后过期' : ' days expires'}`;
 }
 
 export default function JWTPage() {
+  const { t, language } = useLanguage();
   const [input, setInput] = useState('');
   const [parsed, setParsed] = useState<JWTPart | null>(null);
   const [headerJson, setHeaderJson] = useState('');
@@ -92,7 +94,7 @@ export default function JWTPage() {
     const result = parseJWT(input.trim());
 
     if (!result) {
-      setError('无效的JWT格式，请确保输入包含三个点分隔的部分');
+      setError(t.jwt.invalidJwtFormat);
       setParsed(null);
       setHeaderJson('');
       setPayloadJson('');
@@ -128,14 +130,14 @@ export default function JWTPage() {
       <div style={{ marginBottom: '2rem' }}>
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '1rem' }}>
           <ArrowLeft size={16} />
-          返回首页
+          {t.jwt.backToHome}
         </Link>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Key size={36} style={{ color: 'var(--accent-color)' }} />
-          JWT 解析器
+          {t.jwt.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-          解码和验证JSON Web Token，轻松查看Header和Payload内容
+          {t.jwt.subtitle}
         </p>
       </div>
 
@@ -143,7 +145,7 @@ export default function JWTPage() {
       <div className="card" style={{ marginBottom: '1.5rem', backgroundColor: 'var(--bg-tertiary)' }}>
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <FileJson size={18} style={{ color: 'var(--accent-color)' }} />
-          JWT 结构说明
+          {t.jwt.jwtStructure}
         </h3>
         <div style={{
           backgroundColor: 'var(--bg-secondary)',
@@ -154,23 +156,23 @@ export default function JWTPage() {
           overflow: 'auto'
         }}>
           <div style={{ color: 'var(--text-secondary)' }}>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</div>
-          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ Header（头部）</div>
+          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ {t.jwt.header}</div>
           <div style={{ marginTop: '0.5rem', color: 'var(--accent-color)' }}>eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ</div>
-          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ Payload（负载）</div>
+          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ {t.jwt.payload}</div>
           <div style={{ marginTop: '0.5rem', color: 'var(--success-color)' }}>SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</div>
-          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ Signature（签名）</div>
+          <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>▲ {t.jwt.signature}</div>
         </div>
       </div>
 
       {/* Input Area */}
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--text-primary)' }}>
-          输入 JWT Token
+          {t.jwt.inputJwt}
         </label>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="粘贴你的JWT token（例如：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c）..."
+          placeholder={t.jwt.jwtPlaceholder}
           style={{
             width: '100%',
             minHeight: '120px',
@@ -190,7 +192,7 @@ export default function JWTPage() {
             onClick={handleClear}
             style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
           >
-            清空
+            {t.jwt.clear}
           </button>
         </div>
       </div>
@@ -226,11 +228,11 @@ export default function JWTPage() {
                 <Shield size={24} style={{ color: isExpiredToken ? '#ef4444' : '#22c55e' }} />
                 <div>
                   <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {isExpiredToken ? 'Token 已过期' : 'Token 有效'}
+                    {isExpiredToken ? t.jwt.tokenExpired : t.jwt.tokenValid}
                   </div>
                   {payload?.exp && (
                     <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      过期时间: {formatTimestamp(payload.exp)} ({getTimeUntilExpiry(payload.exp)})
+                      {t.jwt.expiryTime}: {formatTimestamp(payload.exp, language)} ({getTimeUntilExpiry(payload.exp, language === 'zh')})
                     </div>
                   )}
                 </div>
@@ -238,7 +240,7 @@ export default function JWTPage() {
               {payload?.iat && (
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                   <Clock size={14} style={{ marginRight: '0.25rem' }} />
-                  签发时间: {formatTimestamp(payload.iat)}
+                  {t.jwt.issuedTime}: {formatTimestamp(payload.iat, language)}
                 </div>
               )}
             </div>
@@ -248,7 +250,7 @@ export default function JWTPage() {
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                Header（头部）
+                {t.jwt.header}
               </h3>
               <button
                 onClick={() => handleCopy(headerJson, 'header')}
@@ -275,7 +277,7 @@ export default function JWTPage() {
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                Payload（负载）
+                {t.jwt.payload}
               </h3>
               <button
                 onClick={() => handleCopy(payloadJson, 'payload')}
@@ -302,7 +304,7 @@ export default function JWTPage() {
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                Signature（签名）
+                {t.jwt.signature}
               </h3>
               <button
                 onClick={() => handleCopy(parsed?.signature || '', 'signature')}
@@ -323,7 +325,7 @@ export default function JWTPage() {
               {parsed?.signature}
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '0.5rem', marginBottom: 0 }}>
-              注意：签名验证需要使用原始密钥，无法在前端完成验证
+              {t.jwt.noteSignatureVerify}
             </p>
           </div>
         </div>
@@ -334,7 +336,7 @@ export default function JWTPage() {
         <div className="card" style={{ backgroundColor: 'var(--bg-tertiary)', textAlign: 'center', padding: '2rem' }}>
           <Key size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '1rem' }} />
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
-            粘贴JWT token后自动解析并显示内容
+            {t.jwt.pasteToParse}
           </p>
         </div>
       )}

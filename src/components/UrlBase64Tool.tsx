@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { encodeUrlSafeBase64, decodeUrlSafeBase64, isValidBase64 } from '@/lib/base64';
+import { encodeUrlSafeBase64, decodeUrlSafeBase64 } from '@/lib/base64';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Copy, RotateCcw, ArrowRightLeft, Info } from 'lucide-react';
 
 export default function UrlBase64Tool() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
@@ -14,7 +16,7 @@ export default function UrlBase64Tool() {
 
   const handleConvert = useCallback(() => {
     if (!input.trim()) {
-      showToast('请输入要转换的内容', 'error');
+      showToast(t.errors.enterContent, 'error');
       return;
     }
 
@@ -24,30 +26,30 @@ export default function UrlBase64Tool() {
       if (mode === 'encode') {
         const result = encodeUrlSafeBase64(input);
         setOutput(result);
-        showToast('编码成功', 'success');
+        showToast(t.common.success, 'success');
       } else {
         const result = decodeUrlSafeBase64(input);
         setOutput(result);
-        showToast('解码成功', 'success');
+        showToast(t.common.success, 'success');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '转换失败');
-      showToast('转换失败', 'error');
+      setError(err instanceof Error ? err.message : t.errors.decodingFailed);
+      showToast(t.tools.urlBase64.conversionFailed, 'error');
     }
-  }, [input, mode, showToast]);
+  }, [input, mode, showToast, t]);
 
   const handleCopy = useCallback(async () => {
     if (!output) {
-      showToast('没有内容可复制', 'error');
+      showToast(t.errors.noOutputToCopy, 'error');
       return;
     }
     try {
       await navigator.clipboard.writeText(output);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
-  }, [output, showToast]);
+  }, [output, showToast, t]);
 
   const handleSwap = useCallback(() => {
     setInput(output);
@@ -65,10 +67,10 @@ export default function UrlBase64Tool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          URL安全Base64编码
+          {t.tools.urlBase64.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          标准Base64与URL-safe Base64互相转换。说明何时需要使用URL安全编码（如在URL参数中）。
+          {t.tools.urlBase64.description}
         </p>
       </div>
 
@@ -77,20 +79,17 @@ export default function UrlBase64Tool() {
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
           <Info size={24} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
           <div>
-            <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>何时使用URL安全编码？</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>{t.tools.urlBase64.whenUseUrlSafe}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              标准Base64编码包含 <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>+</code> 和 
-              <code style={{ backgroundColor: 'var(--bg-tertiary)', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>/</code> 字符，
-              这些字符在URL中具有特殊含义，可能导致解析问题。URL-safe Base64将 <code>+</code> 替换为 <code>-</code>，
-              <code>/</code> 替换为 <code>_</code>，并移除末尾的填充字符 <code>=</code>。
+              {t.tools.urlBase64.urlSafeExplanation}
             </p>
             <div style={{ marginTop: '1rem', fontSize: '0.85rem' }}>
               <div style={{ marginBottom: '0.25rem' }}>
-                <span style={{ color: 'var(--text-tertiary)' }}>标准Base64: </span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{t.tools.urlBase64.standardBase64}: </span>
                 <code>SGVsbG8gV29ybGQ+Iw==</code>
               </div>
               <div>
-                <span style={{ color: 'var(--text-tertiary)' }}>URL-safe: </span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{t.tools.urlBase64.urlSafe}: </span>
                 <code>SGVsbG8gV29ybGQ-Iw</code>
               </div>
             </div>
@@ -102,7 +101,7 @@ export default function UrlBase64Tool() {
         {/* Input */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>输入</span>
+            <span style={{ fontWeight: 500 }}>{t.common.input}</span>
             <button className="btn btn-secondary" onClick={handleReset}>
               <RotateCcw size={16} />
             </button>
@@ -110,7 +109,7 @@ export default function UrlBase64Tool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'encode' ? '输入要编码的普通文本...' : '输入标准或URL-safe Base64字符串...'}
+            placeholder={mode === 'encode' ? t.tools.urlBase64.placeholder.encode : t.tools.urlBase64.placeholder.decode}
             className="input-field"
             style={{ minHeight: '200px', fontFamily: 'monospace' }}
           />
@@ -122,23 +121,23 @@ export default function UrlBase64Tool() {
             <ArrowRightLeft size={20} />
           </button>
           <button className="btn btn-primary" onClick={handleConvert}>
-            {mode === 'encode' ? '标准 → URL' : 'URL → 标准'}
+            {mode === 'encode' ? t.common.standardToUrl : t.common.urlToStandard}
           </button>
         </div>
 
         {/* Output */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>输出</span>
+            <span style={{ fontWeight: 500 }}>{t.common.output}</span>
             <button className="btn btn-secondary copy-btn" onClick={handleCopy}>
               <Copy size={16} />
-              复制
+              {t.common.copy}
             </button>
           </div>
           <textarea
             value={output || error}
             readOnly
-            placeholder="转换结果..."
+            placeholder={t.common.placeholder}
             className="input-field"
             style={{
               minHeight: '200px',
@@ -157,13 +156,13 @@ export default function UrlBase64Tool() {
             className={`btn ${mode === 'encode' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setMode('encode')}
           >
-            标准Base64 → URL-safe
+            {t.common.standardToUrl}
           </button>
           <button
             className={`btn ${mode === 'decode' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setMode('decode')}
           >
-            URL-safe → 标准Base64
+            {t.common.urlToStandard}
           </button>
         </div>
       </div>

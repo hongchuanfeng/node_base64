@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Upload, FileText, Copy, Download, Trash2, Plus, FolderDown } from 'lucide-react';
 import { fileToBase64, encodeBase64, decodeBase64 } from '@/lib/base64';
 import JSZip from 'jszip';
@@ -23,6 +24,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export default function BatchTool() {
+  const { t } = useLanguage();
   const [items, setItems] = useState<BatchItem[]>([]);
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -34,7 +36,7 @@ export default function BatchTool() {
   const handleAddText = useCallback(() => {
     const input = textInputRef.current?.value.trim();
     if (!input) {
-      showToast('请输入文本内容', 'error');
+      showToast(t.batch.addContentFirst, 'error');
       return;
     }
 
@@ -49,8 +51,8 @@ export default function BatchTool() {
 
     setItems(prev => [...prev, newItem]);
     if (textInputRef.current) textInputRef.current.value = '';
-    showToast('已添加文本', 'success');
-  }, [showToast]);
+    showToast(t.batch.textAdded, 'success');
+  }, [showToast, t]);
 
   const handleAddFiles = useCallback(async (files: FileList) => {
     for (const file of Array.from(files)) {
@@ -66,11 +68,11 @@ export default function BatchTool() {
         };
         setItems(prev => [...prev, newItem]);
       } catch {
-        showToast(`文件 ${file.name} 读取失败`, 'error');
+        showToast(`${t.batch.fileReadFailed}: ${file.name}`, 'error');
       }
     }
-    showToast(`已添加 ${files.length} 个文件`, 'success');
-  }, [showToast]);
+    showToast(`${t.batch.fileAdded}: ${files.length}`, 'success');
+  }, [showToast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -82,7 +84,7 @@ export default function BatchTool() {
 
   const handleProcessAll = useCallback(async () => {
     if (items.length === 0) {
-      showToast('请先添加要处理的内容', 'error');
+      showToast(t.batch.addContentFirst, 'error');
       return;
     }
 
@@ -95,7 +97,7 @@ export default function BatchTool() {
           if (mode === 'encode') {
             output = item.type === 'text' 
               ? encodeBase64(item.input) 
-              : item.input; // 文件已经是Base64
+              : item.input;
           } else {
             output = decodeBase64(item.input);
           }
@@ -104,7 +106,7 @@ export default function BatchTool() {
           return { 
             ...item, 
             status: 'error' as const,
-            error: error instanceof Error ? error.message : '处理失败'
+            error: error instanceof Error ? error.message : t.batch.failed
           };
         }
       })
@@ -115,8 +117,8 @@ export default function BatchTool() {
     
     const successCount = updatedItems.filter(i => i.status === 'success').length;
     const errorCount = updatedItems.filter(i => i.status === 'error').length;
-    showToast(`处理完成��成功 ${successCount}，失败 ${errorCount}`, errorCount > 0 ? 'info' : 'success');
-  }, [items, mode, showToast]);
+    showToast(`${t.batch.processComplete} ${successCount}，${errorCount}`, errorCount > 0 ? 'info' : 'success');
+  }, [items, mode, showToast, t]);
 
   const handleCopyAll = useCallback(async () => {
     const outputs = items
@@ -125,23 +127,23 @@ export default function BatchTool() {
       .join('\n');
 
     if (!outputs) {
-      showToast('没有可复制的内容', 'error');
+      showToast(t.batch.noContentToCopy, 'error');
       return;
     }
 
     try {
       await navigator.clipboard.writeText(outputs);
-      showToast('已复制所有结果', 'success');
+      showToast(t.batch.copiedAllResults, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.selfDestruct?.copyFailed || 'Copy failed', 'error');
     }
-  }, [items, showToast]);
+  }, [items, showToast, t]);
 
   const handleDownloadZip = useCallback(async () => {
     const successItems = items.filter(item => item.status === 'success' && item.type === 'file');
     
     if (successItems.length === 0) {
-      showToast('没有可下载的文件', 'error');
+      showToast(t.batch.noFileToDownload, 'error');
       return;
     }
 
@@ -149,7 +151,6 @@ export default function BatchTool() {
       const zip = new JSZip();
       
       for (const item of successItems) {
-        // 从Base64提取实际数据
         const base64Data = item.output || item.input;
         const dataUrlMatch = base64Data.match(/^data:([^;]+);base64,(.+)$/);
         
@@ -175,11 +176,11 @@ export default function BatchTool() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      showToast('ZIP文件下载中...', 'success');
+      showToast(t.batch.zipDownloading, 'success');
     } catch {
-      showToast('打包失败', 'error');
+      showToast(t.batch.packagingFailed, 'error');
     }
-  }, [items, showToast]);
+  }, [items, showToast, t]);
 
   const handleRemoveItem = useCallback((id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
@@ -193,10 +194,10 @@ export default function BatchTool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          批量处理
+          {t.batch.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          批量文件/文本与Base64互转，支持ZIP打包导出，提供命令行风格的批量操作界面。
+          {t.batch.subtitle}
         </p>
       </div>
 
@@ -208,13 +209,13 @@ export default function BatchTool() {
               className={`btn ${mode === 'encode' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setMode('encode')}
             >
-              编码
+              {t.batch.encode}
             </button>
             <button
               className={`btn ${mode === 'decode' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setMode('decode')}
             >
-              解码
+              {t.batch.decode}
             </button>
           </div>
 
@@ -226,7 +227,7 @@ export default function BatchTool() {
               onClick={handleProcessAll}
               disabled={isProcessing || items.length === 0}
             >
-              {isProcessing ? '处理中...' : '批量处理'}
+              {isProcessing ? t.batch.processing : t.batch.batchProcess}
             </button>
             <button
               className="btn btn-secondary"
@@ -234,14 +235,14 @@ export default function BatchTool() {
               disabled={items.length === 0}
             >
               <Copy size={16} />
-              复制全部
+              {t.batch.copyAll}
             </button>
             <button
               className="btn btn-secondary"
               onClick={handleDownloadZip}
             >
               <FolderDown size={16} />
-              ZIP导出
+              {t.batch.zipExport}
             </button>
             <button
               className="btn btn-secondary"
@@ -249,7 +250,7 @@ export default function BatchTool() {
               disabled={items.length === 0}
             >
               <Trash2 size={16} />
-              清空
+              {t.batch.clear}
             </button>
           </div>
         </div>
@@ -258,15 +259,15 @@ export default function BatchTool() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
         {/* Add Content Area */}
         <div className="card">
-          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>添加内容</h3>
+          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.batch.addContent}</h3>
           
           {/* Text Input */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <label className="input-label">文本输入</label>
+            <label className="input-label">{t.batch.textInput}</label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <textarea
                 ref={textInputRef}
-                placeholder="输入文本内容..."
+                placeholder={t.batch.inputTextPlaceholder}
                 className="input-field"
                 style={{ flex: 1, minHeight: '100px' }}
               />
@@ -288,9 +289,9 @@ export default function BatchTool() {
               <Upload size={48} />
             </div>
             <p className="drop-zone-text">
-              {isDragging ? '放开以上传文件' : '拖拽文件到此处，或点击选择'}
+              {isDragging ? t.batch.releaseToUpload : t.batch.fileDropZone}
             </p>
-            <p className="drop-zone-hint">支持多个文件</p>
+            <p className="drop-zone-hint">{t.batch.multipleFiles}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -304,7 +305,7 @@ export default function BatchTool() {
         {/* Queue List */}
         <div className="card">
           <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>
-            处理队列 ({items.length})
+            {t.batch.processingQueue} ({items.length})
           </h3>
           
           {items.length === 0 ? (
@@ -315,7 +316,7 @@ export default function BatchTool() {
               backgroundColor: 'var(--bg-tertiary)',
               borderRadius: '8px'
             }}>
-              队列为空，请添加要处理的内容
+              {t.batch.queueEmpty}
             </div>
           ) : (
             <div style={{ 
@@ -349,7 +350,7 @@ export default function BatchTool() {
                     </p>
                     {item.type === 'text' && (
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-                        文本 | {item.input.length} 字符
+                        {t.batch.text} | {item.input.length} {t.batch.chars}
                       </p>
                     )}
                   </div>
@@ -364,7 +365,7 @@ export default function BatchTool() {
                         : 'var(--text-tertiary)',
                     color: 'white'
                   }}>
-                    {item.status === 'success' ? '完成' : item.status === 'error' ? '失败' : '待处理'}
+                    {item.status === 'success' ? t.batch.done : item.status === 'error' ? t.batch.failed : t.batch.pending}
                   </span>
                   <button
                     onClick={() => handleRemoveItem(item.id)}
@@ -388,7 +389,7 @@ export default function BatchTool() {
       {/* Results */}
       {items.some(i => i.status === 'success') && (
         <div className="card" style={{ marginTop: '1.5rem' }}>
-          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>处理结果</h3>
+          <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.batch.processingResult}</h3>
           <div style={{ 
             maxHeight: '300px', 
             overflowY: 'auto',
@@ -412,7 +413,7 @@ export default function BatchTool() {
                 }}>
                   <strong>{item.name}</strong>
                   <span style={{ color: 'var(--text-tertiary)' }}>
-                    {item.output.length} 字符
+                    {item.output.length} {t.batch.chars}
                   </span>
                 </div>
                 <div className="result-area" style={{ maxHeight: '100px' }}>

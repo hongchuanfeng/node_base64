@@ -4,8 +4,10 @@ import { useState, useCallback } from 'react';
 import { useToast, ToastContainer } from '@/components/Toast';
 import { Copy, RotateCcw, ArrowRightLeft, BookOpen, Info, Code } from 'lucide-react';
 import { encodeBase58, decodeBase58 } from '@/lib/other-bases';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function Base58Tool() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
@@ -15,7 +17,7 @@ export default function Base58Tool() {
 
   const handleConvert = useCallback(() => {
     if (!input.trim()) {
-      showToast('请输入要转换的内容', 'error');
+      showToast(t.errors.inputEmpty, 'error');
       return;
     }
 
@@ -25,30 +27,30 @@ export default function Base58Tool() {
       if (mode === 'encode') {
         const result = encodeBase58(input);
         setOutput(result);
-        showToast('编码成功', 'success');
+        showToast(t.common.success, 'success');
       } else {
         const result = decodeBase58(input);
         setOutput(result);
-        showToast('解码成功', 'success');
+        showToast(t.common.success, 'success');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '转换失败');
-      showToast('转换失败', 'error');
+      setError(err instanceof Error ? err.message : t.baseEncoding.decodingFailed);
+      showToast(t.baseEncoding.encodingFailed, 'error');
     }
-  }, [input, mode, showToast]);
+  }, [input, mode, showToast, t]);
 
   const handleCopy = useCallback(async () => {
     if (!output) {
-      showToast('没有内容可复制', 'error');
+      showToast(t.errors.noOutputToCopy, 'error');
       return;
     }
     try {
       await navigator.clipboard.writeText(output);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
-  }, [output, showToast]);
+  }, [output, showToast, t]);
 
   const handleSwap = useCallback(() => {
     setInput(output);
@@ -67,17 +69,17 @@ export default function Base58Tool() {
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          Base58 编码解码
+          {t.baseEncoding.title58}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Base58编码是比特币地址采用的编码方式，使用的字符集不包含容易混淆的0、O、I、l等字符，更易于人类阅读。
+          {t.baseEncoding.subtitle58}
         </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '1rem', alignItems: 'stretch' }}>
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>输入</span>
+            <span style={{ fontWeight: 500 }}>{t.common.input}</span>
             <button className="btn btn-secondary" onClick={handleReset}>
               <RotateCcw size={16} />
             </button>
@@ -85,7 +87,7 @@ export default function Base58Tool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'encode' ? '输入要编码的文本...' : '输入Base58字符串...'}
+            placeholder={mode === 'encode' ? t.baseEncoding.inputPlaceholder : t.baseEncoding.inputBase64Placeholder}
             className="input-field"
             style={{ minHeight: '200px', fontFamily: 'monospace' }}
           />
@@ -96,22 +98,22 @@ export default function Base58Tool() {
             <ArrowRightLeft size={20} />
           </button>
           <button className="btn btn-primary" onClick={handleConvert}>
-            {mode === 'encode' ? '编码' : '解码'}
+            {mode === 'encode' ? t.baseEncoding.encode : t.baseEncoding.decode}
           </button>
         </div>
 
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <span style={{ fontWeight: 500 }}>输出</span>
+            <span style={{ fontWeight: 500 }}>{t.baseEncoding.result}</span>
             <button className="btn btn-secondary copy-btn" onClick={handleCopy}>
               <Copy size={16} />
-              复制
+              {t.baseEncoding.copy}
             </button>
           </div>
           <textarea
             value={output || error}
             readOnly
-            placeholder="转换结果..."
+            placeholder={t.tools.smartBase64?.placeholder?.output || 'Result will appear here...'}
             className="input-field"
             style={{
               minHeight: '200px',

@@ -3,9 +3,11 @@
 import { useState, useCallback } from 'react';
 import { detectHiddenContent, encryptAES, decryptAES, HiddenContentDetection } from '@/lib/crypto';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { Shield, Lock, Eye, AlertTriangle, Key, Unlock } from 'lucide-react';
 
 export default function SecurityTool() {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [detectionResult, setDetectionResult] = useState<HiddenContentDetection | null>(null);
   const [encryptPassword, setEncryptPassword] = useState('');
@@ -17,26 +19,26 @@ export default function SecurityTool() {
 
   const handleDetect = useCallback(() => {
     if (!input.trim()) {
-      showToast('请输入要检测的Base64字符串', 'error');
+      showToast(t.errors.base64InputEmpty, 'error');
       return;
     }
 
     try {
       const result = detectHiddenContent(input);
       setDetectionResult(result);
-      showToast('检测完成', 'success');
+      showToast(t.common.success, 'success');
     } catch {
-      showToast('检测失败', 'error');
+      showToast(t.common.error, 'error');
     }
-  }, [input, showToast]);
+  }, [input, showToast, t]);
 
   const handleEncrypt = useCallback(async () => {
     if (!encryptInput.trim()) {
-      showToast('请输入要加密的文本', 'error');
+      showToast(t.errors.inputEmpty, 'error');
       return;
     }
     if (!encryptPassword.trim()) {
-      showToast('请输入密码', 'error');
+      showToast('Please enter password', 'error');
       return;
     }
 
@@ -44,21 +46,21 @@ export default function SecurityTool() {
     try {
       const encrypted = await encryptAES(encryptInput, encryptPassword);
       setEncryptOutput(encrypted);
-      showToast('加密成功', 'success');
+      showToast(t.common.success, 'success');
     } catch (error) {
-      showToast(error instanceof Error ? error.message : '加密失败', 'error');
+      showToast(error instanceof Error ? error.message : t.errors.encodingFailed, 'error');
     } finally {
       setIsEncrypting(false);
     }
-  }, [encryptInput, encryptPassword, showToast]);
+  }, [encryptInput, encryptPassword, showToast, t]);
 
   const handleDecrypt = useCallback(async () => {
     if (!encryptInput.trim()) {
-      showToast('请输入要解密的Base64字符串', 'error');
+      showToast(t.errors.base64InputEmpty, 'error');
       return;
     }
     if (!encryptPassword.trim()) {
-      showToast('请输入密码', 'error');
+      showToast('Please enter password', 'error');
       return;
     }
 
@@ -66,32 +68,32 @@ export default function SecurityTool() {
     try {
       const decrypted = await decryptAES(encryptInput, encryptPassword);
       setEncryptOutput(decrypted);
-      showToast('解密成功', 'success');
+      showToast(t.common.success, 'success');
     } catch (error) {
-      showToast(error instanceof Error ? error.message : '解密失败，请检查密码是否正确', 'error');
+      showToast(error instanceof Error ? error.message : t.errors.decodingFailed, 'error');
     } finally {
       setIsEncrypting(false);
     }
-  }, [encryptInput, encryptPassword, showToast]);
+  }, [encryptInput, encryptPassword, showToast, t]);
 
   const handleCopy = useCallback(async () => {
     if (!encryptOutput) return;
     try {
       await navigator.clipboard.writeText(encryptOutput);
-      showToast('已复制到剪贴板', 'success');
+      showToast(t.common.copiedToClipboard, 'success');
     } catch {
-      showToast('复制失败', 'error');
+      showToast(t.common.copyFailed, 'error');
     }
-  }, [encryptOutput, showToast]);
+  }, [encryptOutput, showToast, t]);
 
   return (
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          安全相关工具
+          {t.tools.security.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)' }}>
-          Base64隐藏信息检测、AES加密+Base64组合编码功能，保护您的数据安全。
+          {t.tools.security.description}
         </p>
       </div>
 
@@ -102,14 +104,14 @@ export default function SecurityTool() {
           onClick={() => setActiveTab('detect')}
         >
           <Shield size={16} style={{ marginRight: '0.5rem' }} />
-          隐藏信息检测
+          {t.tools.security.title}
         </button>
         <button
           className={`tab ${activeTab === 'encrypt' ? 'active' : ''}`}
           onClick={() => setActiveTab('encrypt')}
         >
           <Lock size={16} style={{ marginRight: '0.5rem' }} />
-          AES加密+Base64
+          AES + Base64
         </button>
       </div>
 
@@ -117,11 +119,11 @@ export default function SecurityTool() {
         /* Hidden Content Detection */
         <div>
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>输入Base64字符串</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t.tools.imageBase64.inputBase64}</h3>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="在此粘贴Base64字符串进行安全检测..."
+              placeholder={t.tools.security.placeholder}
               className="input-field"
               style={{ minHeight: '150px', fontFamily: 'monospace' }}
             />
@@ -131,7 +133,7 @@ export default function SecurityTool() {
               style={{ marginTop: '1rem', width: '100%' }}
             >
               <Eye size={16} />
-              开始检测
+              {t.tools.security.detect}
             </button>
           </div>
 
@@ -143,12 +145,12 @@ export default function SecurityTool() {
                   {detectionResult.hasHiddenContent ? (
                     <>
                       <AlertTriangle size={20} style={{ color: 'var(--error-color)' }} />
-                      安全警示
+                      Security Warning
                     </>
                   ) : (
                     <>
                       <Shield size={20} style={{ color: 'var(--success-color)' }} />
-                      检测结果
+                      {t.tools.security.detectionResult}
                     </>
                   )}
                 </h3>
@@ -165,7 +167,7 @@ export default function SecurityTool() {
                     fontWeight: 'bold',
                     color: detectionResult.hasHiddenContent ? 'var(--error-color)' : 'var(--success-color)'
                   }}>
-                    {detectionResult.hasHiddenContent ? '检测到可疑内容' : '未检测到异常'}
+                    {detectionResult.hasHiddenContent ? 'Suspicious Content Detected' : 'No Anomalies Detected'}
                   </p>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                     {detectionResult.recommendation}
@@ -177,11 +179,11 @@ export default function SecurityTool() {
               <div className="card">
                 <h3 style={{ fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <AlertTriangle size={20} style={{ color: 'var(--warning-color)' }} />
-                  可疑模式检测
+                  Suspicious Pattern Detection
                 </h3>
                 {detectionResult.suspiciousPatterns.length === 0 ? (
                   <p style={{ color: 'var(--success-color)', textAlign: 'center', padding: '1rem' }}>
-                    未发现可疑模式
+                    No suspicious patterns found
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -202,7 +204,7 @@ export default function SecurityTool() {
 
               {/* Entropy Analysis */}
               <div className="card">
-                <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>数据熵值分析</h3>
+                <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Data Entropy Analysis</h3>
                 <div style={{
                   padding: '1.5rem',
                   backgroundColor: 'var(--bg-tertiary)',
@@ -213,13 +215,13 @@ export default function SecurityTool() {
                     {detectionResult.entropyScore}
                   </p>
                   <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-                    bits/字符
+                    bits/char
                   </p>
                   <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    {detectionResult.entropyScore < 4 && '低熵值 - 数据可能是重复模式'}
-                    {detectionResult.entropyScore >= 4 && detectionResult.entropyScore < 6 && '中等熵值 - 数据接近随机'}
-                    {detectionResult.entropyScore >= 6 && detectionResult.entropyScore < 7 && '较高熵值 - 数据接近完全随机'}
-                    {detectionResult.entropyScore >= 7 && '高熵值 - 数据可能经过强加密'}
+                    {detectionResult.entropyScore < 4 && 'Low entropy - Data may be repetitive patterns'}
+                    {detectionResult.entropyScore >= 4 && detectionResult.entropyScore < 6 && 'Medium entropy - Data is close to random'}
+                    {detectionResult.entropyScore >= 6 && detectionResult.entropyScore < 7 && 'High entropy - Data is close to fully random'}
+                    {detectionResult.entropyScore >= 7 && 'Very high entropy - Data may be strongly encrypted'}
                   </div>
                 </div>
               </div>
@@ -230,24 +232,24 @@ export default function SecurityTool() {
         /* AES Encryption */
         <div>
           <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>加密/解密设置</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Encryption/Decryption Settings</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="input-wrapper">
-                <label className="input-label">密码</label>
+                <label className="input-label">Password</label>
                 <input
                   type="password"
                   value={encryptPassword}
                   onChange={(e) => setEncryptPassword(e.target.value)}
-                  placeholder="输入加密/解密密码..."
+                  placeholder="Enter encryption/decryption password..."
                   className="input-field"
                 />
               </div>
               <div className="input-wrapper">
-                <label className="input-label">输入文本或Base64</label>
+                <label className="input-label">Input Text or Base64</label>
                 <textarea
                   value={encryptInput}
                   onChange={(e) => setEncryptInput(e.target.value)}
-                  placeholder="输入要加密/解密的文本..."
+                  placeholder={t.errors.inputEmpty}
                   className="input-field"
                   style={{ minHeight: '150px', fontFamily: 'monospace' }}
                 />
@@ -260,7 +262,7 @@ export default function SecurityTool() {
                 disabled={isEncrypting}
               >
                 <Lock size={16} />
-                加密
+                {t.common.encode}
               </button>
               <button
                 className="btn btn-secondary"
@@ -268,7 +270,7 @@ export default function SecurityTool() {
                 disabled={isEncrypting}
               >
                 <Unlock size={16} />
-                解密
+                {t.common.decode}
               </button>
             </div>
           </div>
@@ -276,17 +278,17 @@ export default function SecurityTool() {
           {/* Output */}
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontWeight: 600 }}>输出结果</h3>
+              <h3 style={{ fontWeight: 600 }}>{t.common.output}</h3>
               <button
                 className="btn btn-secondary"
                 onClick={handleCopy}
                 disabled={!encryptOutput}
               >
-                复制
+                {t.common.copy}
               </button>
             </div>
             <div className="result-area" style={{ minHeight: '150px' }}>
-              {encryptOutput || '输出结果将显示在这里...'}
+              {encryptOutput || t.tools.textBase64.placeholder.output}
             </div>
           </div>
 
@@ -294,12 +296,12 @@ export default function SecurityTool() {
           <div className="card" style={{ marginTop: '1.5rem', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
             <h3 style={{ fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Key size={20} style={{ color: 'var(--accent-color)' }} />
-              关于AES加密
+              About AES Encryption
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              AES（高级加密标准）是一种对称加密算法，本工具使用256位密钥的AES-GCM模式进行加密。
-              加密后的结果将自动转换为Base64格式，方便存储和传输。
-              请妥善保管您的密码，丢失将无法恢复数据。
+              AES (Advanced Encryption Standard) is a symmetric encryption algorithm. This tool uses AES-GCM mode with 256-bit key for encryption.
+              The encrypted result will be automatically converted to Base64 format for easy storage and transmission.
+              Please keep your password safe, it cannot be recovered if lost.
             </p>
           </div>
         </div>

@@ -1,53 +1,60 @@
 'use client';
 
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/hooks/useLanguage';
 import Link from 'next/link';
-import { Sun, Moon, Menu, X, ChevronDown, Zap } from 'lucide-react';
+import { Sun, Moon, Menu, X, ChevronDown, Zap, Globe } from 'lucide-react';
 import { useState } from 'react';
-
-const navItems = [
-  { href: '/', label: '首页' },
-  { href: '/text-base64', label: '文本Base64' },
-  { href: '/file-base64', label: '文件Base64' },
-  { href: '/image-base64', label: '图片预览' },
-  { href: '/url-base64', label: 'URL安全编码' },
-  { href: '/learn', label: '学习Base64' },
-  { href: '/developers', label: '开发者' },
-];
-
-const advancedNavItems = [
-  { href: '/diff', label: 'Diff对比', isNew: true },
-  { href: '/regex-extract', label: '正则提取', isNew: true },
-  { href: '/code-snippet', label: '代码生成', isNew: true },
-  { href: '/smart-detect', label: '智能识别', isNew: true },
-  { href: '/self-destruct', label: '自毁模式', isNew: true },
-  { href: '/large-file', label: '大文件处理', isNew: true },
-  { href: '/smart-base64', label: '智能Base64' },
-  { href: '/analyze', label: '解码分析' },
-  { href: '/security', label: '安全检测' },
-  { href: '/batch', label: '批量处理' },
-  { href: '/jwt', label: 'JWT解析器', isNew: true },
-  { href: '/base91', label: 'Base91编码', isNew: true },
-  { href: '/faq', label: '常见问题' },
-  { href: '/use-cases', label: '使用场景' },
-  { href: '/changelog', label: '更新日志' },
-  { href: '/compare', label: '编码对比' },
-  { href: '/extensions', label: '浏览器扩展' },
-  { href: '/cli', label: '命令行工具' },
-  { href: '/testimonials', label: '用户评价' },
-];
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { t, language, setLanguage } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  const handleLanguageSwitch = () => {
+    const newLang = language === 'zh' ? 'en' : 'zh';
+    setLanguage(newLang);
+  };
+
+  const navItems = [
+    { href: '/', label: t.nav.home },
+    { href: '/text-base64', label: t.nav.textBase64 },
+    { href: '/file-base64', label: t.nav.fileBase64 },
+    { href: '/image-base64', label: t.nav.imageBase64 },
+    { href: '/url-base64', label: t.nav.urlBase64 },
+    { href: '/learn', label: t.nav.learn },
+    { href: '/developers', label: t.nav.developers },
+  ];
+
+  const advancedNavItems = [
+    { href: '/diff', label: t.nav.diff, isNew: true },
+    { href: '/regex-extract', label: t.nav.regexExtract, isNew: true },
+    { href: '/code-snippet', label: t.nav.codeSnippet, isNew: true },
+    { href: '/smart-detect', label: t.nav.smartDetect, isNew: true },
+    { href: '/self-destruct', label: t.nav.selfDestruct, isNew: true },
+    { href: '/large-file', label: t.nav.largeFile, isNew: true },
+    { href: '/smart-base64', label: t.nav.smartBase64 },
+    { href: '/analyze', label: t.nav.analyze },
+    { href: '/security', label: t.nav.security },
+    { href: '/batch', label: t.nav.batch },
+    { href: '/jwt', label: t.nav.jwt, isNew: true },
+    { href: '/base91', label: t.nav.base91, isNew: true },
+    { href: '/faq', label: t.nav.faq },
+    { href: '/use-cases', label: t.nav.useCases },
+    { href: '/changelog', label: t.nav.changelog },
+    { href: '/compare', label: t.nav.compare },
+    { href: '/extensions', label: t.nav.extensions },
+    { href: '/cli', label: t.nav.cli },
+    { href: '/testimonials', label: t.nav.testimonials },
+  ];
 
   return (
     <header className="header">
       <div className="header-container">
         <Link href="/" className="header-logo">
           <span style={{ fontSize: '2rem' }}>🔐</span>
-          <span className="header-title">传道AI</span>
+          <span className="header-title">{language === 'zh' ? '传道AI' : 'ChuanDaoAI'}</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -62,7 +69,7 @@ export function Header() {
             </Link>
           ))}
 
-          {/* 进阶功能下拉菜单 */}
+          {/* Advanced Features Dropdown */}
           <div className="advanced-menu-wrapper">
             <button
               className="nav-link advanced-menu-btn"
@@ -70,7 +77,7 @@ export function Header() {
               onMouseEnter={() => setAdvancedOpen(true)}
             >
               <Zap size={16} />
-              进阶功能
+              {t.nav.advancedFeatures}
               <ChevronDown size={14} style={{ transition: 'transform 0.2s', transform: advancedOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
             </button>
             <div
@@ -86,7 +93,7 @@ export function Header() {
                   onClick={() => setAdvancedOpen(false)}
                 >
                   <span>{item.label}</span>
-                  {item.isNew && <span className="new-tag">NEW</span>}
+                  {item.isNew && <span className="new-tag">{t.common.newTag}</span>}
                 </Link>
               ))}
             </div>
@@ -97,15 +104,25 @@ export function Header() {
           <button
             onClick={toggleTheme}
             className="theme-toggle"
-            aria-label="切换主题"
+            aria-label={t.theme.toggleTheme}
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
           <button
+            onClick={handleLanguageSwitch}
+            className="language-toggle"
+            aria-label={t.language.switchLanguage}
+            title={t.language.switchLanguage}
+          >
+            <Globe size={18} />
+            <span className="language-text">{language === 'zh' ? 'EN' : '中'}</span>
+          </button>
+
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="mobile-menu-btn"
-            aria-label="菜单"
+            aria-label={t.nav.menu}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -126,10 +143,10 @@ export function Header() {
             </Link>
           ))}
 
-          {/* 进阶功能 - 移动端 */}
+          {/* Advanced Features - Mobile */}
           <div className="mobile-nav-section-title">
             <Zap size={16} />
-            进阶功能
+            {t.nav.advancedFeatures}
           </div>
           {advancedNavItems.map(item => (
             <Link
@@ -140,7 +157,7 @@ export function Header() {
               style={{ paddingLeft: '1.5rem' }}
             >
               {item.label}
-              {item.isNew && <span className="new-tag" style={{ marginLeft: '0.5rem' }}>NEW</span>}
+              {item.isNew && <span className="new-tag" style={{ marginLeft: '0.5rem' }}>{t.common.newTag}</span>}
             </Link>
           ))}
         </nav>
@@ -255,6 +272,52 @@ export function Header() {
         }
         .theme-toggle:hover {
           background-color: var(--bg-tertiary);
+        }
+        .language-toggle {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          background: none;
+          border: 1px solid var(--border-color);
+          padding: 0.4rem 0.75rem;
+          cursor: pointer;
+          color: var(--text-secondary);
+          border-radius: 8px;
+          transition: all 0.2s;
+          font-family: inherit;
+          font-size: 0.85rem;
+          font-weight: 500;
+        }
+        .language-toggle:hover {
+          background-color: var(--bg-tertiary);
+          color: var(--accent-color);
+          border-color: var(--accent-color);
+        }
+        .language-text {
+          min-width: 24px;
+        }
+        .language-toggle {
+          background: none;
+          border: 1px solid var(--border-color);
+          padding: 0.4rem 0.6rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          color: var(--text-primary);
+          border-radius: 6px;
+          transition: all 0.2s;
+          font-family: inherit;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+        .language-toggle:hover {
+          background-color: var(--bg-tertiary);
+          border-color: var(--accent-color);
+          color: var(--accent-color);
+        }
+        .language-text {
+          min-width: 24px;
         }
         .mobile-menu-btn {
           background: none;

@@ -1,60 +1,59 @@
+'use client';
+
 import Link from 'next/link';
-import type { Metadata } from 'next';
-import { BookOpen, Lightbulb, Code, FileText, GraduationCap, Layers, ArrowRight, Clock, History, Terminal, Database, Globe, Shield } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: '学习Base64 - 传道AI',
-  description: '了解Base64的原理、应用场景和最佳实践。Base64原理、常见场景、对比分析、面试题整理。',
-};
-
-const chapters = [
-  {
-    icon: <BookOpen size={24} />,
-    title: 'Base64原理',
-    desc: '图解Base64编码原理，为什么用64个字符，填充机制详解',
-    href: '/learn/principles'
-  },
-  {
-    icon: <Lightbulb size={24} />,
-    title: '常见场景',
-    desc: '图片嵌入HTML/CSS、Data URL、JWT的Payload部分、邮件附件编码',
-    href: '/learn/scenarios'
-  },
-  {
-    icon: <Layers size={24} />,
-    title: '对比分析',
-    desc: 'Base64 vs Base32 vs Base58（比特币地址）vs Hex',
-    href: '/learn/comparison'
-  },
-  {
-    icon: <GraduationCap size={24} />,
-    title: '面试题整理',
-    desc: '常见Base64相关面试题与解答',
-    href: '/learn/interview'
-  },
-  {
-    icon: <Code size={24} />,
-    title: 'JavaScript演示',
-    desc: '交互式演示编码过程，每一步转换可视化',
-    href: '/learn/demo'
-  },
-  {
-    icon: <History size={24} />,
-    title: '发展历程',
-    desc: 'Base64的起源、MIME标准制定、互联网时代的重要应用',
-    href: '/learn/history'
-  },
-];
+import { useLanguage } from '@/hooks/useLanguage';
+import { BookOpen, Lightbulb, Code, FileText, GraduationCap, Layers, ArrowRight, History } from 'lucide-react';
 
 export default function LearnPage() {
+  const { t } = useLanguage();
+
+  const chapters = [
+    {
+      icon: <BookOpen size={24} />,
+      title: t.learn.principles.title,
+      desc: t.learn.principles.desc,
+      href: '/learn/principles'
+    },
+    {
+      icon: <Lightbulb size={24} />,
+      title: t.learn.scenarios.title,
+      desc: t.learn.scenarios.desc,
+      href: '/learn/scenarios'
+    },
+    {
+      icon: <Layers size={24} />,
+      title: t.learn.comparison.title,
+      desc: t.learn.comparison.desc,
+      href: '/learn/comparison'
+    },
+    {
+      icon: <GraduationCap size={24} />,
+      title: t.learn.interview.title,
+      desc: t.learn.interview.desc,
+      href: '/learn/interview'
+    },
+    {
+      icon: <Code size={24} />,
+      title: t.learn.demo.title,
+      desc: t.learn.demo.desc,
+      href: '/learn/demo'
+    },
+    {
+      icon: <History size={24} />,
+      title: t.learn.history.title,
+      desc: t.learn.history.desc,
+      href: '/learn/history'
+    },
+  ];
+
   return (
     <div className="tool-container">
       <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          学习Base64
+          {t.learn.title}
         </h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-          Base64是一种基于64个可打印字符来表示二进制数据的方法。了解Base64的原理、应用场景和最佳实践。
+          {t.learn.subtitle}
         </p>
       </div>
 
@@ -75,7 +74,7 @@ export default function LearnPage() {
                 gap: '0.5rem',
                 color: 'var(--accent-color)'
               }}>
-                开始学习 <ArrowRight size={16} />
+                {t.home.startLearning} <ArrowRight size={16} />
               </div>
             </div>
           </Link>
@@ -86,18 +85,18 @@ export default function LearnPage() {
       <div className="card" style={{ marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <FileText size={24} style={{ color: 'var(--accent-color)' }} />
-          Base64编码对照表
+          {t.learn.encodingTable}
         </h2>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>索引</th>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>字符</th>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>二进制</th>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>索引</th>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>字符</th>
-                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>二进制</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.index}</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.character}</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.binary}</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.index}</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.character}</th>
+                <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid var(--border-color)' }}>{t.learn.binary}</th>
               </tr>
             </thead>
             <tbody>
@@ -115,15 +114,15 @@ export default function LearnPage() {
           </table>
         </div>
         <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-          <p><strong>说明：</strong> Base64使用 A-Z（26个）、a-z（26个）、0-9（10个）、+（1个）、/（1个）共64个字符。</p>
-          <p style={{ marginTop: '0.5rem' }}>索引0-25对应A-Z，26-51对应a-z，52-61对应0-9，62对应+，63对应/。</p>
+          <p><strong>{t.learn.character}:</strong> {t.learn.tableNote}</p>
+          <p style={{ marginTop: '0.5rem' }}>{t.learn.tableNote2}</p>
         </div>
       </div>
 
       {/* Quick Example */}
       <div className="card">
         <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '1rem' }}>
-          快速示例
+          {t.learn.quickExample}
         </h2>
         <div style={{
           backgroundColor: 'var(--bg-tertiary)',
@@ -133,27 +132,27 @@ export default function LearnPage() {
           fontSize: '0.9rem'
         }}>
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-tertiary)' }}>输入: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.input}: </span>
             <span style={{ color: 'var(--accent-color)' }}>Man</span>
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-tertiary)' }}>ASCII: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.ascii}: </span>
             <span>77 (M), 97 (a), 110 (n)</span>
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-tertiary)' }}>二进制: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.binaryValue}: </span>
             <span>01001101 01100001 01101110</span>
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-tertiary)' }}>分组: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.groups}: </span>
             <span>010011 010110 000101 101110</span>
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ color: 'var(--text-tertiary)' }}>十进制: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.decimal}: </span>
             <span>19, 22, 5, 46</span>
           </div>
           <div>
-            <span style={{ color: 'var(--text-tertiary)' }}>Base64: </span>
+            <span style={{ color: 'var(--text-tertiary)' }}>{t.learn.base64Result}: </span>
             <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>TWFu</span>
           </div>
         </div>
@@ -162,10 +161,10 @@ export default function LearnPage() {
       {/* Navigation Links */}
       <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <Link href="/text-base64" className="btn btn-primary" style={{ textDecoration: 'none' }}>
-          前往工具
+          {t.learn.goToTools}
         </Link>
         <Link href="/learn/demo" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-          交互演示
+          {t.learn.interactiveDemo}
         </Link>
       </div>
     </div>
