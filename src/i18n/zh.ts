@@ -113,6 +113,10 @@ export const zh = {
     efficientDesc: '支持快捷键操作（Ctrl+Enter转换、Ctrl+Shift+C复制结果），历史记录保存最近10次转换。',
     responsive: '响应式设计',
     responsiveDesc: '完美支持PC端和移动端，兼容各种主流浏览器，随时随地使用。',
+    developerTools: '开发者与工具',
+    learningResources: '学习与资源',
+    productServices: '产品与服务',
+    moreInfo: '更多信息',
   },
 
   // 功能描述
