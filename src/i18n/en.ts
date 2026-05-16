@@ -119,6 +119,10 @@ export const en: TranslationKeys = {
     learningResources: 'Learning & Resources',
     productServices: 'Products & Services',
     moreInfo: 'More Information',
+    batchIntegration: 'Batch & API Integration',
+    smartAnalysis: 'Smart Analysis & Detection',
+    securityPrivacy: 'Security & Privacy',
+    fileProcessing: 'File Processing',
   },
 
   // 功能描述

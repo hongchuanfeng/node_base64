@@ -51,12 +51,12 @@ export default function HomePage() {
 
   // 衍生编码工具
   const extendedFeatures: FeatureItem[] = [
-    { icon: <Code size={20} />, title: 'Base16', desc: '十六进制编码', href: '/base16' },
-    { icon: <Code size={20} />, title: 'Base32', desc: 'RFC 4648标准', href: '/base32' },
-    { icon: <Code size={20} />, title: 'Base58', desc: '比特币地址编码', href: '/base58' },
-    { icon: <Code size={20} />, title: 'Base62', desc: 'URL友好编码', href: '/base62' },
-    { icon: <Code size={20} />, title: 'Base85', desc: 'Adobe变体编码', href: '/base85' },
-    { icon: <Code size={20} />, title: 'Base100', desc: '完整Emoji编码', href: '/base100' },
+    { icon: <Code size={20} />, title: t.features.base16.title, desc: t.features.base16.desc, href: '/base16' },
+    { icon: <Code size={20} />, title: t.features.base32.title, desc: t.features.base32.desc, href: '/base32' },
+    { icon: <Code size={20} />, title: t.features.base58.title, desc: t.features.base58.desc, href: '/base58' },
+    { icon: <Code size={20} />, title: t.features.base62.title, desc: t.features.base62.desc, href: '/base62' },
+    { icon: <Code size={20} />, title: t.features.base85.title, desc: t.features.base85.desc, href: '/base85' },
+    { icon: <Code size={20} />, title: t.features.base100.title, desc: t.features.base100.desc, href: '/base100' },
   ];
 
   // 进阶功能 - 批量与集成
@@ -187,7 +187,7 @@ export default function HomePage() {
     {
       icon: <Book size={24} />,
       title: t.home.learnBase64,
-      desc: 'Base64原理、面试题、在线演示',
+      desc: t.home.base64Description,
       href: '/learn'
     },
   ];
@@ -551,7 +551,7 @@ export default function HomePage() {
             gap: '0.5rem'
           }}>
             <Terminal size={18} color="var(--accent-color)" />
-            批量与编程集成
+            {t.home.batchIntegration}
           </h3>
           <div style={{
             display: 'grid',
@@ -576,7 +576,7 @@ export default function HomePage() {
             gap: '0.5rem'
           }}>
             <Search size={18} color="var(--accent-color)" />
-            智能分析与识别
+            {t.home.smartAnalysis}
           </h3>
           <div style={{
             display: 'grid',
@@ -601,7 +601,7 @@ export default function HomePage() {
             gap: '0.5rem'
           }}>
             <Shield size={18} color="var(--accent-color)" />
-            安全与隐私保护
+            {t.home.securityPrivacy}
           </h3>
           <div style={{
             display: 'grid',
@@ -626,7 +626,7 @@ export default function HomePage() {
             gap: '0.5rem'
           }}>
             <HardDrive size={18} color="var(--accent-color)" />
-            文件处理
+            {t.home.fileProcessing}
           </h3>
           <div style={{
             display: 'grid',

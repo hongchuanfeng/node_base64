@@ -117,6 +117,10 @@ export const zh = {
     learningResources: '学习与资源',
     productServices: '产品与服务',
     moreInfo: '更多信息',
+    batchIntegration: '批量与编程集成',
+    smartAnalysis: '智能分析与识别',
+    securityPrivacy: '安全与隐私保护',
+    fileProcessing: '文件处理',
   },
 
   // 功能描述
