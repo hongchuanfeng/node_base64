@@ -47,6 +47,8 @@ export function Header() {
     { href: '/extensions', label: t.nav.extensions },
     { href: '/cli', label: t.nav.cli },
     { href: '/testimonials', label: t.nav.testimonials },
+    { href: '/how-to-use', label: '使用指南' },
+    { href: '/blog', label: '博客' },
   ];
 
   return (

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Users, Shield, Zap, Heart } from 'lucide-react';
+import { Users, Shield, Zap, Heart, TrendingUp, Globe, Award, Clock } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: '关于我们 - 传道AI',
@@ -25,6 +25,13 @@ const features = [
   },
 ];
 
+const stats = [
+  { icon: <Globe className="w-5 h-5" />, value: '180+', label: '国家和地区' },
+  { icon: <TrendingUp className="w-5 h-5" />, value: '1000万+', label: '年度转换次数' },
+  { icon: <Clock className="w-5 h-5" />, value: '99.9%', label: '服务可用性' },
+  { icon: <Award className="w-5 h-5" />, value: '4.8/5', label: '用户满意度' },
+];
+
 export default function AboutPage() {
   return (
     <div className="tool-container">
@@ -34,6 +41,28 @@ export default function AboutPage() {
       <p style={{ color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '700px', margin: '0 auto 3rem', fontSize: '1.1rem', lineHeight: 1.8 }}>
         传道AI是一个专注于在线工具开发的团队，致力于为用户提供免费、高效、安全的编码解码工具。
       </p>
+
+      {/* Statistics */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+        gap: '1.5rem', 
+        marginBottom: '3rem' 
+      }}>
+        {stats.map((stat, index) => (
+          <div key={index} className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+            <div style={{ color: 'var(--accent-color)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
+              {stat.icon}
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+              {stat.value}
+            </div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         {features.map((feature, index) => (

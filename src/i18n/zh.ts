@@ -298,6 +298,8 @@ export const zh = {
       copiedToClipboard: '图片已复制到剪贴板',
       copyFailedHint: '复制失败，请尝试右键保存图片',
       downloading: '图片下载中...',
+      expand: '放大',
+      expandImage: '放大图片',
     },
     urlBase64: {
       title: 'URL安全Base64编码',

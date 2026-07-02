@@ -41,6 +41,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/extensions',
     '/cli',
     '/testimonials',
+    '/cookie-policy',
+    '/accessibility',
+    '/how-to-use',
+    '/blog',
   ];
 
   return routes.map((route) => ({

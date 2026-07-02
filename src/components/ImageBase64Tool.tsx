@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useToast, ToastContainer } from '@/components/Toast';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Copy, Download, Image as ImageIcon, Info } from 'lucide-react';
+import { Copy, Download, Image as ImageIcon, Info, Maximize2, X } from 'lucide-react';
 import Image from 'next/image';
 
 interface ImageInfo {
@@ -19,6 +19,7 @@ export default function ImageBase64Tool() {
   const [imageSrc, setImageSrc] = useState('');
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
   const [error, setError] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { toasts, showToast } = useToast();
 
   const handlePreview = useCallback(() => {
@@ -112,6 +113,24 @@ export default function ImageBase64Tool() {
     setError('');
   }, []);
 
+  const openFullscreen = useCallback(() => {
+    if (imageSrc) {
+      setIsFullscreen(true);
+      document.body.style.overflow = 'hidden';
+    }
+  }, [imageSrc]);
+
+  const closeFullscreen = useCallback(() => {
+    setIsFullscreen(false);
+    document.body.style.overflow = '';
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeFullscreen();
+    }
+  }, [closeFullscreen]);
+
   return (
     <div className="tool-container">
       <div style={{ marginBottom: '2rem' }}>
@@ -173,24 +192,47 @@ export default function ImageBase64Tool() {
             justifyContent: 'center',
             backgroundColor: 'var(--bg-tertiary)',
             borderRadius: '8px',
-            padding: '2rem'
+            padding: '2rem',
+            position: 'relative'
           }}>
             {error ? (
               <p style={{ color: 'var(--error-color)', textAlign: 'center' }}>{error}</p>
             ) : imageSrc ? (
-              <Image
-                src={imageSrc}
-                alt="Base64 Preview"
-                width={400}
-                height={300}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '400px',
-                  objectFit: 'contain',
-                  borderRadius: '8px'
-                }}
-                onLoad={handleImageLoad}
-              />
+              <div style={{ position: 'relative' }}>
+                <Image
+                  src={imageSrc}
+                  alt="Base64 Preview"
+                  width={400}
+                  height={300}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '400px',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                  onLoad={handleImageLoad}
+                  onClick={openFullscreen}
+                />
+                <button
+                  className="btn btn-secondary"
+                  onClick={openFullscreen}
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    padding: '6px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '0.8rem'
+                  }}
+                  title={t.tools.imageBase64.expandImage}
+                >
+                  <Maximize2 size={14} />
+                  {t.tools.imageBase64.expand}
+                </button>
+              </div>
             ) : (
               <div style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>
                 <ImageIcon size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
@@ -233,6 +275,78 @@ export default function ImageBase64Tool() {
           )}
         </div>
       </div>
+
+      {/* Fullscreen Modal */}
+      {isFullscreen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            cursor: 'pointer'
+          }}
+          onClick={closeFullscreen}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+        >
+          <button
+            className="btn btn-secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeFullscreen();
+            }}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              borderColor: 'rgba(255, 255, 255, 0.2)'
+            }}
+            title="Close"
+          >
+            <X size={20} />
+          </button>
+          <Image
+            src={imageSrc}
+            alt="Fullscreen Preview"
+            width={imageInfo?.width || 800}
+            height={imageInfo?.height || 600}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              objectFit: 'contain'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {imageInfo && (
+            <div style={{
+              position: 'absolute',
+              bottom: '1rem',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              color: 'white',
+              fontSize: '0.9rem',
+              display: 'flex',
+              gap: '1rem'
+            }}>
+              <span>{imageInfo.width} × {imageInfo.height}</span>
+              <span>{imageInfo.type}</span>
+              <span>{imageInfo.size}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} />
     </div>

@@ -300,6 +300,8 @@ export const en: TranslationKeys = {
       copiedToClipboard: 'Image copied to clipboard',
       copyFailedHint: 'Copy failed, try right-click to save image',
       downloading: 'Downloading image...',
+      expand: 'Expand',
+      expandImage: 'Expand image',
     },
     urlBase64: {
       title: 'URL Safe Base64 Encoding',

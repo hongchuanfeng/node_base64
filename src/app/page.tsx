@@ -190,6 +190,18 @@ export default function HomePage() {
       desc: t.home.base64Description,
       href: '/learn'
     },
+    {
+      icon: <BookOpen size={24} />,
+      title: '使用指南',
+      desc: '详细的工具使用教程',
+      href: '/how-to-use'
+    },
+    {
+      icon: <Star size={24} />,
+      title: '博客',
+      desc: '技术文章和最新动态',
+      href: '/blog'
+    },
   ];
 
   // 产品与服务
@@ -227,6 +239,18 @@ export default function HomePage() {
       title: t.features.changelog.title,
       desc: t.features.changelog.desc,
       href: '/changelog'
+    },
+    {
+      icon: <BookOpen size={24} />,
+      title: '使用指南',
+      desc: '详细的工具使用教程',
+      href: '/how-to-use'
+    },
+    {
+      icon: <Star size={24} />,
+      title: '博客',
+      desc: '技术文章和最新动态',
+      href: '/blog'
     },
   ];
 

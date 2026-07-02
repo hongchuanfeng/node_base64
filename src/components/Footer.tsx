@@ -29,6 +29,8 @@ export function Footer() {
     { href: '/terms', label: t.footer.termsOfService },
     { href: '/disclaimer', label: t.footer.disclaimer },
     { href: '/copyright', label: t.footer.copyright },
+    { href: '/cookie-policy', label: 'Cookie政策' },
+    { href: '/accessibility', label: '无障碍声明' },
   ];
 
   const advancedFooterLinks = [
@@ -42,6 +44,8 @@ export function Footer() {
     { href: '/analyze', label: t.nav.analyze },
     { href: '/security', label: t.nav.security },
     { href: '/batch', label: t.nav.batch },
+    { href: '/how-to-use', label: '使用指南' },
+    { href: '/blog', label: '博客' },
   ];
 
   return (
