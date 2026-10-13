@@ -22,6 +22,46 @@ export const metadata: Metadata = {
   },
 };
 
+// JSON-LD Structured Data for SEO
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '传道AI Base64在线工具',
+  description: '免费的在线Base64编码解码工具，支持文本、文件、图片等多种格式转换，纯浏览器端处理，保护隐私。',
+  url: 'https://www.base64.club',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Any',
+  permissions: 'browser',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  provider: {
+    '@type': 'Organization',
+    name: '传道AI',
+    url: 'https://www.base64.club',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'support@base64.club',
+      contactType: 'customer support',
+    },
+  },
+};
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: '传道AI',
+  url: 'https://www.base64.club',
+  logo: 'https://www.base64.club/logo.png',
+  description: '传道AI是一个专注于在线工具开发的团队，致力于为用户提供免费、高效、安全的编码解码工具。',
+  email: 'support@base64.club',
+  sameAs: [
+    'https://github.com/base64club',
+  ],
+};
+
 function ThemeScript() {
   return (
     <script
@@ -52,6 +92,13 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <ThemeScript />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([jsonLd, organizationJsonLd]),
+          }}
+        />
         {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-8NMLH22Y6G" />
         <script

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Mail, MessageCircle, Github, Globe, Clock, Headphones, Bug, Lightbulb, Heart, Users, Shield, Zap } from 'lucide-react';
+import { Mail, MessageCircle, Github, Globe, Clock, Bug, Lightbulb, Heart, Shield, Zap } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: '联系我们 - 传道AI',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const contactMethods = [
   {
     icon: <Mail size={24} />,
-    title: '电子邮件',
+    title: '技术支持',
     desc: '发送邮件至 support@base64.club',
     value: 'support@base64.club',
     color: '#3b82f6',
@@ -18,9 +18,9 @@ const contactMethods = [
   },
   {
     icon: <MessageCircle size={24} />,
-    title: '微信客服',
-    desc: '添加微信号：base64club',
-    value: 'base64club',
+    title: '问题反馈',
+    desc: '通过工单系统提交问题',
+    value: 'base64.club/contact',
     color: '#22c55e',
     response: '工作日 9:00-18:00'
   },
@@ -28,14 +28,14 @@ const contactMethods = [
     icon: <Github size={24} />,
     title: 'GitHub Issues',
     desc: '在 GitHub 提交问题或建议',
-    value: 'github.com/base64club/issues',
+    value: 'github.com/base64club',
     color: '#8b5cf6',
     response: '社区互助，回答更快'
   },
   {
     icon: <Globe size={24} />,
     title: '官方网站',
-    desc: '访问我们的官方网站',
+    desc: '访问我们的官方网站获取更多信息',
     value: 'www.base64.club',
     color: '#f59e0b',
     response: '了解更多产品和服务'
@@ -87,35 +87,12 @@ const faqList = [
     a: '可以，请使用我们的批量处理工具，支持同时处理多个文件。'
   },
   {
-    q: '生成的链接是永久有效的吗？',
-    a: '临时分享链接在24小时后自动失效，敏感数据链接在首次查看后失效。'
+    q: '支持大文件处理吗？',
+    a: '支持。请使用大文件处理工具，支持超过10MB的文件，采用分块处理避免浏览器卡顿。'
   },
   {
     q: '如何获取API接口？',
     a: '访问 /api 页面获取RESTful API文档和代码示例。'
-  },
-];
-
-const teamMembers = [
-  {
-    role: '创始人 & CEO',
-    name: '张三',
-    intro: '15年前端开发经验，专注工具类产品设计'
-  },
-  {
-    role: '技术负责人',
-    name: '李四',
-    intro: '全栈工程师，擅长性能优化和安全防护'
-  },
-  {
-    role: '产品经理',
-    name: '王五',
-    intro: '深耕工具类应用，为用户提供最佳体验'
-  },
-  {
-    role: 'UI设计师',
-    name: '赵六',
-    intro: '追求极简美学，让工具既美观又好用'
   },
 ];
 
@@ -244,43 +221,6 @@ export default function ContactPage() {
         <p style={{ marginTop: '1rem', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
           更多问题请查看 <Link href="/learn" style={{ color: 'var(--accent-color)' }}>学习中心</Link> 或 <Link href="/about" style={{ color: 'var(--accent-color)' }}>关于我们</Link>
         </p>
-      </div>
-
-      {/* Team Section */}
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Users size={24} color="var(--accent-color)" />
-          核心团队
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          {teamMembers.map((member, index) => (
-            <div key={index} style={{
-              padding: '1.5rem',
-              backgroundColor: 'var(--bg-tertiary)',
-              borderRadius: '12px',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-color)',
-                margin: '0 auto 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '1.5rem',
-                fontWeight: 'bold'
-              }}>
-                {member.name[0]}
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--accent-color)', marginBottom: '0.25rem' }}>{member.role}</div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{member.name}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{member.intro}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Social Links */}

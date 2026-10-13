@@ -4,67 +4,123 @@ import { Newspaper, Calendar, ArrowRight, Tag } from 'lucide-react';
 const articles = [
   {
     id: 1,
-    title: 'Base64编码原理详解：从原理到实践',
-    excerpt: '深入了解Base64编码的工作原理，为什么它被广泛使用，以及在实际开发中如何正确应用。',
-    date: '2025-01-15',
+    title: '深入理解Base64编码原理：从ASCII到二进制',
+    excerpt: 'Base64是一种广泛使用的编码方式，本文将深入讲解其工作原理，包括字符集选择、分组转换、填充机制等核心概念，帮助开发者彻底理解Base64的底层实现。',
+    date: '2026-01-15',
     category: '技术教程',
     href: '/learn/principles',
     featured: true
   },
   {
     id: 2,
-    title: 'URL编码 vs Base64：何时使用哪种编码方式',
-    excerpt: 'URL编码和Base64编码各有优劣，本文详细介绍它们的区别和适用场景，帮助你选择正确的编码方式。',
-    date: '2025-01-10',
-    category: '技术比较',
-    href: '/learn/comparison',
+    title: 'Web开发中Base64的最佳实践与性能优化',
+    excerpt: '在Web开发中合理使用Base64可以提升性能，但使用不当也会适得其反。本文介绍Data URI内嵌图片的适用场景、文件大小阈值、以及现代浏览器的处理机制。',
+    date: '2026-01-10',
+    category: '最佳实践',
+    href: '/learn/scenarios',
     featured: true
   },
   {
     id: 3,
-    title: '前端开发者的Base64使用技巧',
-    excerpt: '分享在实际项目中高效使用Base64的技巧，包括性能优化、缓存策略和最佳实践。',
-    date: '2025-01-05',
-    category: '最佳实践',
-    href: '/learn/scenarios',
+    title: 'JWT Token中的Base64编码：安全须知',
+    excerpt: 'JWT（JSON Web Token）已成为现代Web应用认证的事实标准，其Payload部分使用Base64编码。本文详解JWT结构、Base64编码的安全性以及常见的安全陷阱。',
+    date: '2026-01-05',
+    category: '安全知识',
+    href: '/security',
     featured: false
   },
   {
     id: 4,
-    title: 'Base64在前端性能优化中的应用',
-    excerpt: '探讨如何利用Base64编码优化网页加载性能，减少HTTP请求，提升用户体验。',
-    date: '2024-12-28',
+    title: 'Base64 vs Base58 vs Hex：何时选择哪种编码',
+    excerpt: '不同的编码方式适用于不同的场景。本文对比Base64、Base58和Hex的特点，分析各自的优劣势，帮助开发者在实际项目中做出正确的技术选型。',
+    date: '2025-12-28',
+    category: '技术比较',
+    href: '/compare',
+    featured: false
+  },
+  {
+    id: 5,
+    title: '前端性能优化：如何正确使用Base64内嵌资源',
+    excerpt: 'Base64内嵌资源可以减少HTTP请求，但也会增加HTML/CSS体积和解析时间。本文提供实用的决策框架和性能测试方法，帮助你做出最优选择。',
+    date: '2025-12-20',
     category: '性能优化',
     href: '/learn/scenarios',
     featured: false
   },
   {
-    id: 5,
-    title: '常见的Base64编码错误及解决方案',
-    excerpt: '汇总开发者在使用Base64时最常遇到的错误，以及如何避免和解决这些问题。',
-    date: '2024-12-20',
-    category: '问题解决',
-    href: '/faq',
+    id: 6,
+    title: 'Base64不是加密：数据安全的基本认知',
+    excerpt: '很多开发者误以为Base64可以保护数据安全，这是一个危险的认识误区。本文澄清Base64的本质，介绍真正适合数据保护的加密方法，包括AES、RSA等。',
+    date: '2025-12-15',
+    category: '安全知识',
+    href: '/security',
     featured: false
   },
   {
-    id: 6,
-    title: 'Base64与数据安全：你需要知道的事实',
-    excerpt: '澄清关于Base64的安全误区，解释为什么Base64不是加密，以及如何正确保护你的数据。',
-    date: '2024-12-15',
-    category: '安全知识',
-    href: '/security',
+    id: 7,
+    title: 'Node.js中Base64编码的完整指南',
+    excerpt: 'Node.js提供了强大的Buffer API来处理Base64编码。本文涵盖基础用法、文件处理、流式操作以及常见的性能陷阱和优化技巧。',
+    date: '2025-12-10',
+    category: '开发指南',
+    href: '/api',
+    featured: false
+  },
+  {
+    id: 8,
+    title: 'Python Base64编码：标准库与性能对比',
+    excerpt: 'Python的base64模块支持多种Base64变体。本文对比不同实现方式的性能差异，介绍base64url、base32等特殊编码，并提供生产环境的最佳实践。',
+    date: '2025-12-05',
+    category: '开发指南',
+    href: '/api',
+    featured: false
+  },
+  {
+    id: 9,
+    title: '邮件系统中的Base64：MIME协议详解',
+    excerpt: 'Base64最初就是为了解决邮件传输二进制附件的问题而设计的。本文回顾MIME协议的历史，解释为什么要用Base64，以及现代邮件系统的编码实践。',
+    date: '2025-11-28',
+    category: '技术历史',
+    href: '/learn/history',
+    featured: false
+  },
+  {
+    id: 10,
+    title: 'API设计中的Base64使用规范',
+    excerpt: '在RESTful API设计中合理使用Base64可以简化接口设计，但也带来体积增加和处理的复杂性。本文提供API Base64使用的设计规范和最佳实践。',
+    date: '2025-11-20',
+    category: '最佳实践',
+    href: '/api',
+    featured: false
+  },
+  {
+    id: 11,
+    title: 'Base64面试题汇总与详细解答',
+    excerpt: 'Base64是面试中的常见考点。本文汇总高频面试题，从编码原理到实际应用，从手写实现到性能优化，全面覆盖Base64相关知识点。',
+    date: '2025-11-15',
+    category: '面试题库',
+    href: '/learn/interview',
+    featured: false
+  },
+  {
+    id: 12,
+    title: 'Data URI vs CDN：图片加载策略对比',
+    excerpt: '小图片用Data URI内嵌，大图片用CDN加速，如何判断临界点？本文通过实际测试数据，分析两种方案的优劣和适用场景。',
+    date: '2025-11-10',
+    category: '性能优化',
+    href: '/learn/scenarios',
     featured: false
   },
 ];
 
 const categories = [
-  { name: '技术教程', count: 12 },
-  { name: '最佳实践', count: 8 },
-  { name: '技术比较', count: 5 },
-  { name: '性能优化', count: 4 },
-  { name: '问题解决', count: 6 },
-  { name: '安全知识', count: 3 },
+  { name: '技术教程', count: 4, href: '/learn/principles' },
+  { name: '最佳实践', count: 3, href: '/api' },
+  { name: '安全知识', count: 2, href: '/security' },
+  { name: '性能优化', count: 2, href: '/learn/scenarios' },
+  { name: '开发指南', count: 2, href: '/api' },
+  { name: '技术比较', count: 1, href: '/compare' },
+  { name: '技术历史', count: 1, href: '/learn/history' },
+  { name: '面试题库', count: 1, href: '/learn/interview' },
 ];
 
 export default function BlogPage() {
